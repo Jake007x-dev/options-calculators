@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import EmailCapture from "@/components/calculators/EmailCapture";
 import CTABanner from "@/components/calculators/CTABanner";
 
 export const metadata: Metadata = {
@@ -12,138 +13,173 @@ const calculators = [
   {
     slug: "implied-volatility",
     title: "Implied Volatility Calculator",
-    description: "Back-solve for IV from any option's market price using Newton-Raphson iteration against Black-Scholes.",
+    description: "Back-solve for IV from any option's market price using Newton-Raphson iteration.",
     tag: "IV / Volatility",
     icon: "📊",
   },
   {
     slug: "black-scholes",
     title: "Black-Scholes Pricing Calculator",
-    description: "Calculate theoretical call/put prices and all five Greeks: Delta, Gamma, Theta, Vega, and Rho.",
+    description: "Calculate theoretical call/put prices and all five Greeks in real time.",
     tag: "Pricing / Greeks",
     icon: "⚖️",
   },
   {
     slug: "wheel-strategy",
     title: "Wheel Strategy Income Calculator",
-    description: "Project your annualized yield and monthly income from running the Wheel (CSP → Covered Call) strategy.",
+    description: "Project annualized yield and monthly income from running the Wheel strategy.",
     tag: "Income / Strategy",
     icon: "🔄",
   },
   {
     slug: "expected-move",
     title: "Expected Move Calculator",
-    description: "Calculate the options market's 1σ price range using IV or the ATM straddle price.",
+    description: "Calculate the options market's 1σ price range using IV or ATM straddle price.",
     tag: "IV / Range",
     icon: "🎯",
   },
   {
     slug: "monte-carlo",
     title: "Monte Carlo Portfolio Simulator",
-    description: "Run 500 simulated trading paths to estimate your probability of ruin and range of outcomes.",
+    description: "Run 500 simulated paths to estimate your probability of ruin and range of outcomes.",
     tag: "Risk / Simulation",
     icon: "🎲",
   },
   {
     slug: "position-size",
     title: "Position Size & Risk Calculator",
-    description: "Calculate the exact number of contracts you can trade while staying within your risk per trade limit.",
+    description: "Calculate the exact number of contracts to stay within your per-trade risk limit.",
     tag: "Risk / Sizing",
     icon: "🛡️",
   },
   {
     slug: "strategy-selector",
     title: "Options Strategy Selector",
-    description: "Answer three questions about your market outlook, risk tolerance, and time horizon for personalized strategy recommendations.",
+    description: "Answer three questions and get personalized strategy recommendations.",
     tag: "Education / Strategy",
     icon: "🧭",
   },
   {
     slug: "theta-decay",
     title: "Theta Decay Visualizer",
-    description: "Visualize how an option's value decays daily from now to expiration — from a buyer's or seller's perspective.",
+    description: "Visualize how an option's value erodes daily from now to expiration.",
     tag: "Theta / Visualization",
     icon: "⏳",
   },
   {
     slug: "annualized-return",
     title: "Annualized Return on Capital",
-    description: "Standardize any options premium into an annualized ROC and compare it against the S&P 500 and savings rates.",
+    description: "Standardize any premium into annualized ROC and benchmark against the S&P 500.",
     tag: "Income / ROC",
     icon: "📈",
   },
   {
     slug: "earnings-straddle",
     title: "Earnings Straddle Calculator",
-    description: "Compare implied vs. historical earnings moves to find edge and model long/short straddle P&L.",
+    description: "Compare implied vs. historical earnings moves and model long/short straddle P&L.",
     tag: "Earnings / Straddle",
     icon: "📰",
   },
 ];
 
-export default function CalculatorsIndexPage() {
-  return (
-    <div className="min-h-screen bg-[#0F1629] pb-24">
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-blue-900/30 border border-blue-500/30 rounded-full px-4 py-1.5 text-blue-300 text-xs font-medium mb-4">
-            Professional-Grade Tools · Free · Real-Time
-          </div>
-          <h1 className="text-4xl font-semibold text-white mb-4">
-            Options Trading Calculators
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Ten professional-grade tools to price options, manage risk, and build income strategies — all updating in real time as you type.
-          </p>
-        </div>
+const benefits = [
+  {
+    icon: "⚡",
+    title: "Real-Time Outputs",
+    desc: "Every slider and input updates results instantly — no submit button, no lag.",
+  },
+  {
+    icon: "🎓",
+    title: "Built-In Education",
+    desc: "Each tool includes worked example trades, explanations, and strategy context.",
+  },
+  {
+    icon: "🔒",
+    title: "Free, No Signup Required",
+    desc: "All 10 calculators are completely free. No account needed to get started.",
+  },
+];
 
-        {/* Calculator grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {calculators.map((calc) => (
-            <Link
-              key={calc.slug}
-              href={`/calculators/${calc.slug}`}
-              className="group bg-gray-900 border border-gray-800 hover:border-blue-500/50 rounded-xl p-5 flex flex-col gap-3 transition-all hover:bg-gray-800/50"
-            >
-              <div className="flex items-start justify-between">
-                <span className="text-2xl">{calc.icon}</span>
-                <span className="text-xs bg-gray-800 group-hover:bg-gray-700 text-gray-400 px-2 py-1 rounded-full transition-colors">
+export default function CalculatorsLandingPage() {
+  return (
+    <main className="flex-1 min-w-0 px-6 py-10 pb-24">
+      {/* Breadcrumb */}
+      <nav className="text-xs text-gray-500 mb-6 flex items-center gap-1.5">
+        <a href="/" className="hover:text-blue-600">🏠</a>
+        <span>›</span>
+        <span className="text-gray-800">Option Calculators</span>
+      </nav>
+
+      {/* Hero */}
+      <div className="mb-10">
+        <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 text-blue-600 text-xs font-medium mb-4">
+          10 Tools · Free · Real-Time · No Signup
+        </div>
+        <h1 className="text-4xl font-bold text-gray-900 mb-3 leading-tight">
+          Free Options Trading Calculators
+        </h1>
+        <p className="text-gray-500 text-lg max-w-2xl leading-relaxed">
+          Professional-grade tools for pricing options, managing risk, and building income strategies — all updating in real time as you type.
+        </p>
+      </div>
+
+      {/* Benefits strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+        {benefits.map((b) => (
+          <div key={b.title} className="flex items-start gap-3 bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <span className="text-xl flex-shrink-0">{b.icon}</span>
+            <div>
+              <p className="font-semibold text-gray-800 text-sm mb-0.5">{b.title}</p>
+              <p className="text-gray-500 text-xs leading-relaxed">{b.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Calculator grid */}
+      <h2 className="text-lg font-bold text-gray-900 mb-4">All Calculators</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
+        {calculators.map((calc) => (
+          <Link
+            key={calc.slug}
+            href={`/calculators/${calc.slug}`}
+            className="group flex items-start gap-4 bg-white border border-gray-200 hover:border-blue-400 hover:shadow-sm rounded-xl p-4 transition-all"
+          >
+            <span className="text-2xl flex-shrink-0 mt-0.5">{calc.icon}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <p className="font-semibold text-gray-900 text-sm group-hover:text-blue-700 transition-colors leading-tight">
+                  {calc.title}
+                </p>
+                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
                   {calc.tag}
                 </span>
               </div>
-              <div>
-                <h2 className="text-white font-semibold text-sm group-hover:text-blue-300 transition-colors leading-tight mb-1.5">
-                  {calc.title}
-                </h2>
-                <p className="text-gray-500 text-xs leading-relaxed">
-                  {calc.description}
-                </p>
-              </div>
-              <div className="text-blue-400 text-xs font-medium mt-auto group-hover:text-blue-300 transition-colors">
+              <p className="text-gray-500 text-xs leading-relaxed">{calc.description}</p>
+              <p className="text-blue-600 text-xs font-medium mt-2 group-hover:text-blue-700 transition-colors">
                 Open calculator →
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Bottom CTA section */}
-        <div className="mt-16 bg-gray-900 border border-blue-500/20 rounded-2xl p-8 text-center">
-          <h2 className="text-white text-2xl font-semibold mb-3">
-            Put These Tools to Work
-          </h2>
-          <p className="text-gray-400 mb-6 max-w-lg mx-auto">
-            Open a live trading account and execute the strategies you've modeled here — with professional-grade order routing and competitive pricing.
-          </p>
-          <Link
-            href="/open-account"
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-3 rounded-xl transition-colors text-sm"
-          >
-            Open a Live Account →
+              </p>
+            </div>
           </Link>
-        </div>
+        ))}
       </div>
+
+      {/* CTA section */}
+      <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <p className="font-bold text-gray-900 text-lg mb-1">Put These Tools to Work</p>
+          <p className="text-gray-600 text-sm">Open a live account and execute the strategies you've modeled here.</p>
+        </div>
+        <Link
+          href="/open-account"
+          className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm"
+        >
+          Open a Live Account →
+        </Link>
+      </div>
+
+      <EmailCapture />
       <CTABanner />
-    </div>
+    </main>
   );
 }
