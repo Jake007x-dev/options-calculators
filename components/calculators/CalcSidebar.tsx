@@ -19,11 +19,11 @@ const CALCULATORS = [
 ];
 
 const GREEKS = [
-  { label: "Delta", href: "/calculators/black-scholes" },
-  { label: "Gamma", href: "/calculators/black-scholes" },
-  { label: "Theta", href: "/calculators/theta-decay" },
-  { label: "Vega", href: "/calculators/implied-volatility" },
-  { label: "Rho", href: "/calculators/black-scholes" },
+  { label: "Delta", href: "/greeks/delta" },
+  { label: "Gamma", href: "/greeks/gamma" },
+  { label: "Theta", href: "/greeks/theta" },
+  { label: "Vega", href: "/greeks/vega" },
+  { label: "Rho", href: "/greeks/rho" },
 ];
 
 function SideSection({
