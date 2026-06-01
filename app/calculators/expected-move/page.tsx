@@ -1,18 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InputSlider from "@/components/calculators/InputSlider";
-import ResultCard from "@/components/calculators/ResultCard";
-import InfoTooltip from "@/components/calculators/InfoTooltip";
+import InlineCTA from "@/components/calculators/InlineCTA";
+import EmailCapture from "@/components/calculators/EmailCapture";
+import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import CTABanner from "@/components/calculators/CTABanner";
+import Link from "next/link";
 
-// Simple bell curve SVG component
 function BellCurve({ stockPrice, moveAmount }: { stockPrice: number; moveAmount: number }) {
-  const width = 340;
-  const height = 130;
-  const cx = width / 2;
-
-  // Generate bell curve path
+  const width = 340, height = 130, cx = width / 2;
   const points: [number, number][] = [];
   for (let i = 0; i <= 100; i++) {
     const x = (i / 100) * width;
@@ -21,61 +19,31 @@ function BellCurve({ stockPrice, moveAmount }: { stockPrice: number; moveAmount:
     points.push([x, y]);
   }
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
-
-  // Price labels
-  const sigma1L = stockPrice - moveAmount;
-  const sigma1H = stockPrice + moveAmount;
-  const sigma2L = stockPrice - moveAmount * 2;
-  const sigma2H = stockPrice + moveAmount * 2;
-
-  const scaleX = (price: number) => {
-    const range = moveAmount * 3;
-    return cx + ((price - stockPrice) / range) * (width / 2);
-  };
-
+  const sigma1L = stockPrice - moveAmount, sigma1H = stockPrice + moveAmount;
+  const sigma2L = stockPrice - moveAmount * 2, sigma2H = stockPrice + moveAmount * 2;
+  const scaleX = (price: number) => cx + ((price - stockPrice) / (moveAmount * 3)) * (width / 2);
   return (
     <svg viewBox={`0 0 ${width} ${height + 30}`} className="w-full max-w-sm mx-auto">
-      {/* 2σ shaded zone */}
-      <path
-        d={`M ${scaleX(sigma2L)} ${height - 10} ${points
-          .filter((p) => p[0] >= scaleX(sigma2L) && p[0] <= scaleX(sigma2H))
-          .map((p, i) => `${i === 0 ? "L" : "L"} ${p[0]} ${p[1]}`)
-          .join(" ")} L ${scaleX(sigma2H)} ${height - 10} Z`}
-        fill="rgba(234, 179, 8, 0.12)"
-      />
-      {/* 1σ shaded zone */}
-      <path
-        d={`M ${scaleX(sigma1L)} ${height - 10} ${points
-          .filter((p) => p[0] >= scaleX(sigma1L) && p[0] <= scaleX(sigma1H))
-          .map((p, i) => `${i === 0 ? "L" : "L"} ${p[0]} ${p[1]}`)
-          .join(" ")} L ${scaleX(sigma1H)} ${height - 10} Z`}
-        fill="rgba(59, 130, 246, 0.18)"
-      />
-      {/* Curve */}
+      <path d={`M ${scaleX(sigma2L)} ${height - 10} ${points.filter((p) => p[0] >= scaleX(sigma2L) && p[0] <= scaleX(sigma2H)).map((p, i) => `${i === 0 ? "L" : "L"} ${p[0]} ${p[1]}`).join(" ")} L ${scaleX(sigma2H)} ${height - 10} Z`} fill="rgba(234,179,8,0.12)" />
+      <path d={`M ${scaleX(sigma1L)} ${height - 10} ${points.filter((p) => p[0] >= scaleX(sigma1L) && p[0] <= scaleX(sigma1H)).map((p, i) => `${i === 0 ? "L" : "L"} ${p[0]} ${p[1]}`).join(" ")} L ${scaleX(sigma1H)} ${height - 10} Z`} fill="rgba(59,130,246,0.18)" />
       <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth="2" />
-      {/* Center line */}
       <line x1={cx} y1={height - 10} x2={cx} y2={10} stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3 2" />
-      {/* Labels */}
-      <text x={cx} y={height + 20} textAnchor="middle" fill="#9ca3af" fontSize="9">
-        ${stockPrice.toFixed(0)}
-      </text>
-      <text x={scaleX(sigma1L)} y={height + 20} textAnchor="middle" fill="#60a5fa" fontSize="9">
-        ${sigma1L.toFixed(0)}
-      </text>
-      <text x={scaleX(sigma1H)} y={height + 20} textAnchor="middle" fill="#60a5fa" fontSize="9">
-        ${sigma1H.toFixed(0)}
-      </text>
-      <text x={scaleX(sigma2L)} y={height + 20} textAnchor="middle" fill="#eab308" fontSize="9">
-        ${sigma2L.toFixed(0)}
-      </text>
-      <text x={scaleX(sigma2H)} y={height + 20} textAnchor="middle" fill="#eab308" fontSize="9">
-        ${sigma2H.toFixed(0)}
-      </text>
+      <text x={cx} y={height + 20} textAnchor="middle" fill="#6b7280" fontSize="9">${stockPrice.toFixed(0)}</text>
+      <text x={scaleX(sigma1L)} y={height + 20} textAnchor="middle" fill="#60a5fa" fontSize="9">${sigma1L.toFixed(0)}</text>
+      <text x={scaleX(sigma1H)} y={height + 20} textAnchor="middle" fill="#60a5fa" fontSize="9">${sigma1H.toFixed(0)}</text>
+      <text x={scaleX(sigma2L)} y={height + 20} textAnchor="middle" fill="#eab308" fontSize="9">${sigma2L.toFixed(0)}</text>
+      <text x={scaleX(sigma2H)} y={height + 20} textAnchor="middle" fill="#eab308" fontSize="9">${sigma2H.toFixed(0)}</text>
       <text x={scaleX(sigma1L) - 4} y={40} textAnchor="end" fill="#60a5fa" fontSize="8">±1σ 68%</text>
       <text x={scaleX(sigma2H) + 4} y={40} textAnchor="start" fill="#eab308" fontSize="8">±2σ 95%</text>
     </svg>
   );
 }
+
+const PRESETS = [
+  { label: "SPY 7-Day", mode: "iv" as const, S: 500, iv: 15, dte: 7, call: 4.5, put: 4.2 },
+  { label: "AAPL Earnings", mode: "straddle" as const, S: 200, iv: 45, dte: 1, call: 4.5, put: 4.2 },
+  { label: "NVDA 30-Day", mode: "iv" as const, S: 130, iv: 55, dte: 30, call: 4.5, put: 4.2 },
+];
 
 export default function ExpectedMovePage() {
   const [mode, setMode] = useState<"iv" | "straddle">("iv");
@@ -86,101 +54,101 @@ export default function ExpectedMovePage() {
   const [putPrice, setPutPrice] = useState(4.2);
 
   const calc = useMemo(() => {
-    let moveDollar = 0;
-    if (mode === "iv") {
-      moveDollar = stockPrice * (iv / 100) * Math.sqrt(dte / 365);
-    } else {
-      moveDollar = (callPrice + putPrice) * 0.85;
-    }
+    const moveDollar = mode === "iv" ? stockPrice * (iv / 100) * Math.sqrt(dte / 365) : (callPrice + putPrice) * 0.85;
     const movePct = (moveDollar / stockPrice) * 100;
-    const upper = stockPrice + moveDollar;
-    const lower = stockPrice - moveDollar;
-    return { moveDollar, movePct, upper, lower };
+    return { moveDollar, movePct, upper: stockPrice + moveDollar, lower: stockPrice - moveDollar };
   }, [mode, stockPrice, iv, dte, callPrice, putPrice]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  function applyPreset(p: typeof PRESETS[0]) {
+    setMode(p.mode); setStockPrice(p.S); setIv(p.iv); setDte(p.dte); setCallPrice(p.call); setPutPrice(p.put);
+  }
+
   return (
-    <div className="min-h-screen bg-[#0F1629] pb-24">
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-white mb-2">
-            Expected Move Calculator
-            <InfoTooltip content="The expected move is the options market's one-standard-deviation forecast for how much a stock will move by expiration. It covers approximately 68% of probable outcomes." />
-          </h1>
-          <p className="text-gray-400 text-sm">
-            Calculate the market-implied expected price range using IV or the straddle price as the input.
-          </p>
+    <CalcPageLayout>
+      <nav className="text-xs text-gray-500 mb-4 flex items-center gap-1.5">
+        <a href="/" className="hover:text-blue-600">🏠</a><span>›</span>
+        <Link href="/calculators" className="hover:text-blue-600">Calculators</Link><span>›</span>
+        <span className="text-gray-800">Expected Move</span>
+      </nav>
+
+      <h1 className="text-3xl font-bold text-gray-900 mb-1">Free Expected Move Calculator</h1>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+
+      {/* Hero */}
+      <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Expected Move</p><p className="text-2xl font-bold text-blue-600">±${fmt(calc.moveDollar)}</p><p className="text-xs text-gray-400 mt-1">1 standard deviation</p></div>
+        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Move %</p><p className="text-2xl font-bold text-gray-800">±{calc.movePct.toFixed(1)}%</p><p className="text-xs text-gray-400 mt-1">of stock price</p></div>
+        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Upper Target</p><p className="text-2xl font-bold text-green-600">${fmt(calc.upper)}</p><p className="text-xs text-gray-400 mt-1">+1σ price level</p></div>
+        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Lower Target</p><p className="text-2xl font-bold text-red-500">${fmt(calc.lower)}</p><p className="text-xs text-gray-400 mt-1">−1σ price level</p></div>
+      </div>
+
+      {/* Presets */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <span className="text-xs text-gray-500 self-center">Quick load:</span>
+        {PRESETS.map((p) => (
+          <button key={p.label} onClick={() => applyPreset(p)} className="text-xs px-3 py-1.5 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-colors">{p.label}</button>
+        ))}
+      </div>
+
+      {/* Calculator */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 mb-8">
+        <div className="flex gap-2 mb-5">
+          {(["iv", "straddle"] as const).map((m) => (
+            <button key={m} onClick={() => setMode(m)} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === m ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              {m === "iv" ? "Mode A: IV-Based" : "Mode B: Straddle-Based"}
+            </button>
+          ))}
         </div>
-
-        {/* Mode toggle */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setMode("iv")}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              mode === "iv" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
-            }`}
-          >
-            Mode A: IV-Based
-          </button>
-          <button
-            onClick={() => setMode("straddle")}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              mode === "straddle" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
-            }`}
-          >
-            Mode B: Straddle-Based
-          </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+          <InputSlider label="Stock Price ($)" value={stockPrice} onChange={setStockPrice} min={1} max={2000} step={0.5} prefix="$" />
+          {mode === "iv" ? (
+            <>
+              <InputSlider label="Implied Volatility (%)" value={iv} onChange={setIv} min={1} max={200} step={0.5} suffix="%" />
+              <InputSlider label="Days to Expiration" value={dte} onChange={setDte} min={1} max={365} step={1} suffix=" days" decimals={0} />
+            </>
+          ) : (
+            <>
+              <InputSlider label="ATM Call Price ($)" value={callPrice} onChange={setCallPrice} min={0.01} max={100} step={0.01} prefix="$" />
+              <InputSlider label="ATM Put Price ($)" value={putPrice} onChange={setPutPrice} min={0.01} max={100} step={0.01} prefix="$" />
+            </>
+          )}
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Inputs */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 flex flex-col gap-5">
-            <h2 className="text-white font-semibold text-lg">Inputs</h2>
-            <InputSlider label="Stock Price ($)" value={stockPrice} onChange={setStockPrice} min={1} max={2000} step={0.5} prefix="$" />
-            {mode === "iv" ? (
-              <>
-                <InputSlider label="Implied Volatility (%)" value={iv} onChange={setIv} min={1} max={200} step={0.5} suffix="%" />
-                <InputSlider label="Days to Expiration" value={dte} onChange={setDte} min={1} max={365} step={1} suffix=" days" decimals={0} />
-              </>
-            ) : (
-              <>
-                <InputSlider label="ATM Call Price ($)" value={callPrice} onChange={setCallPrice} min={0.01} max={100} step={0.01} prefix="$" />
-                <InputSlider label="ATM Put Price ($)" value={putPrice} onChange={setPutPrice} min={0.01} max={100} step={0.01} prefix="$" />
-                <div className="text-gray-500 text-xs bg-gray-800 rounded-lg p-3">
-                  Using straddle × 0.85 approximation (accounts for the bid-ask spread and skew adjustments).
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Results */}
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3">
-              <ResultCard label="Expected Move ($)" value={`±$${fmt(calc.moveDollar)}`} explanation="One standard deviation" color="blue" />
-              <ResultCard label="Expected Move (%)" value={`±${calc.movePct.toFixed(1)}%`} explanation="As % of stock price" color="blue" />
-              <ResultCard label="Upper Target" value={`$${fmt(calc.upper)}`} explanation="+1σ price level" color="green" />
-              <ResultCard label="Lower Target" value={`$${fmt(calc.lower)}`} explanation="−1σ price level" color="red" />
-            </div>
-
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 text-center">
-              <div className="text-blue-400 text-sm font-medium mb-1">68% Probability Range</div>
-              <div className="text-gray-300 text-xs mb-4">
-                There is a 68% chance the stock stays between ${fmt(calc.lower)} and ${fmt(calc.upper)} by expiration.
-              </div>
-              <BellCurve stockPrice={stockPrice} moveAmount={calc.moveDollar} />
-            </div>
-
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-              <h3 className="text-white font-medium mb-2">How This Works</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                The IV-based method uses the formula: Expected Move = Stock Price × IV × √(DTE/365). The straddle method takes the combined at-the-money call and put prices multiplied by 0.85 — a widely used rule of thumb that adjusts for the options market's typical pricing friction. Both methods produce the market's best estimate of the one-standard-deviation range.
-              </p>
-            </div>
-          </div>
+        <div className="mt-5 bg-gray-50 rounded-xl border border-gray-200 p-4 text-center">
+          <p className="text-blue-600 text-sm font-medium mb-1">68% Probability Range</p>
+          <p className="text-gray-500 text-xs mb-4">Stock stays between ${fmt(calc.lower)} – ${fmt(calc.upper)} with 68% probability</p>
+          <BellCurve stockPrice={stockPrice} moveAmount={calc.moveDollar} />
         </div>
       </div>
+
+      <InlineCTA heading="Trade around the expected move" body="Use our Iron Condor or Straddle setups to position around the expected range with defined risk." cta="View Strategies →" />
+
+      <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">What Is the Expected Move?</h2>
+      <p className="text-gray-600 leading-relaxed mb-4">The expected move is the options market's consensus forecast for how much a stock will move by expiration, expressed as a one-standard-deviation range. It represents a 68% probability — meaning the market believes there's a 68% chance the stock ends inside the range and a 32% chance it ends outside.</p>
+      <p className="text-gray-600 leading-relaxed mb-6">This number comes directly from the prices traders are paying for options. When IV is high, traders expect big moves and pay more — the expected move widens. When IV is low, moves are expected to be small. Reading the expected move tells you what the collective market intelligence is pricing in.</p>
+
+      <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
+      <ul className="space-y-3 mb-8">
+        {[
+          ["68% probability, not a guarantee", "The stock ends outside the expected move 32% of the time — more often than most traders realize."],
+          ["Use for strike selection", "Sell options outside the expected move for higher probability. Buy them inside for better delta."],
+          ["Straddle method is more direct", "Multiplying the ATM straddle by 0.85 captures the market's actual risk pricing better than IV math in some cases."],
+          ["Compare to historical moves", "If the expected move on AAPL earnings is 5% but AAPL has moved 9%+ on the last 4 earnings, the straddle is priced too cheaply."],
+        ].map(([title, desc]) => (
+          <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
+            <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
+            <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
+          </li>
+        ))}
+      </ul>
+
+      <EmailCapture />
+      <RelatedCalculators currentSlug="expected-move" />
+      <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
+        <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Options trading involves substantial risk.
+      </div>
       <CTABanner />
-    </div>
+    </CalcPageLayout>
   );
 }

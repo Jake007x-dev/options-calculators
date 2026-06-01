@@ -2,7 +2,7 @@ import TickerTape from "@/components/calculators/TickerTape";
 import CalcSidebar from "@/components/calculators/CalcSidebar";
 import Footer from "@/components/calculators/Footer";
 
-export default function CalculatorsLayout({ children }: { children: React.ReactNode }) {
+export default function GlossaryLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
       <TickerTape />

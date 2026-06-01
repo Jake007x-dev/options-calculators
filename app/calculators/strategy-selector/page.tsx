@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import CalcPageLayout from "@/components/calculators/CalcPageLayout";
+import InlineCTA from "@/components/calculators/InlineCTA";
+import EmailCapture from "@/components/calculators/EmailCapture";
+import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import CTABanner from "@/components/calculators/CTABanner";
 
 type Outlook = "bullish" | "bearish" | "neutral" | "volatile";
@@ -16,7 +20,6 @@ interface Strategy {
   link?: string;
 }
 
-// Decision matrix: outlook → risk → horizon → [strategy1, strategy2]
 const matrix: Record<Outlook, Record<Risk, Record<Horizon, [Strategy, Strategy]>>> = {
   bullish: {
     conservative: {
@@ -163,50 +166,46 @@ export default function StrategySelectorPage() {
   const [risk, setRisk] = useState<Risk | null>(null);
   const [horizon, setHorizon] = useState<Horizon | null>(null);
 
-  const recommendations =
-    outlook && risk && horizon ? matrix[outlook][risk][horizon] : null;
-
+  const recommendations = outlook && risk && horizon ? matrix[outlook][risk][horizon] : null;
   const step = !outlook ? 1 : !risk ? 2 : !horizon ? 3 : 4;
 
   return (
-    <div className="min-h-screen bg-[#0F1629] pb-24">
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-white mb-2">Options Strategy Selector</h1>
-          <p className="text-gray-400 text-sm">
-            Answer three questions and get personalized strategy recommendations matched to your market view and risk tolerance.
-          </p>
-        </div>
+    <CalcPageLayout>
+      <nav className="text-xs text-gray-500 mb-4 flex items-center gap-1.5">
+        <a href="/" className="hover:text-blue-600">🏠</a><span>›</span>
+        <Link href="/calculators" className="hover:text-blue-600">Calculators</Link><span>›</span>
+        <span className="text-gray-800">Strategy Selector</span>
+      </nav>
 
-        {/* Progress */}
-        <div className="flex gap-2 mb-8">
-          {[1, 2, 3].map((s) => (
-            <div
-              key={s}
-              className={`flex-1 h-1 rounded-full transition-colors ${step > s ? "bg-blue-500" : step === s ? "bg-blue-400" : "bg-gray-800"}`}
-            />
-          ))}
-        </div>
+      <h1 className="text-3xl font-bold text-gray-900 mb-1">Options Strategy Selector</h1>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
 
+      <p className="text-gray-600 mb-6">Answer three questions and get personalized strategy recommendations matched to your market view and risk tolerance.</p>
+
+      {/* Progress bar */}
+      <div className="flex gap-2 mb-8">
+        {[1, 2, 3].map((s) => (
+          <div key={s} className={`flex-1 h-1.5 rounded-full transition-colors ${step > s ? "bg-blue-600" : step === s ? "bg-blue-300" : "bg-gray-200"}`} />
+        ))}
+      </div>
+
+      <div className="rounded-xl border border-gray-200 bg-white p-6 mb-8">
         {/* Step 1 */}
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-3">
-            <span className="text-blue-400 mr-2">1.</span>What is your market outlook?
+          <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
+            What is your market outlook?
           </h2>
           <div className="grid grid-cols-2 gap-3">
             {outlooks.map((o) => (
               <button
                 key={o.value}
-                onClick={() => setOutlook(o.value)}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  outlook === o.value
-                    ? "border-blue-500 bg-blue-900/30"
-                    : "border-gray-800 bg-gray-900 hover:border-gray-600"
-                }`}
+                onClick={() => { setOutlook(o.value); setRisk(null); setHorizon(null); }}
+                className={`p-4 rounded-xl border text-left transition-all ${outlook === o.value ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-gray-50 hover:border-blue-200 hover:bg-blue-50/50"}`}
               >
                 <div className="text-xl mb-1">{o.emoji}</div>
-                <div className="text-white font-medium text-sm">{o.label}</div>
-                <div className="text-gray-400 text-xs mt-0.5">{o.desc}</div>
+                <div className="text-gray-900 font-medium text-sm">{o.label}</div>
+                <div className="text-gray-500 text-xs mt-0.5">{o.desc}</div>
               </button>
             ))}
           </div>
@@ -214,23 +213,20 @@ export default function StrategySelectorPage() {
 
         {/* Step 2 */}
         {outlook && (
-          <div className="mb-6">
-            <h2 className="text-white font-semibold mb-3">
-              <span className="text-blue-400 mr-2">2.</span>What is your risk preference?
+          <div className="mb-6 pt-4 border-t border-gray-100">
+            <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">2</span>
+              What is your risk preference?
             </h2>
             <div className="grid grid-cols-2 gap-3">
               {risks.map((r) => (
                 <button
                   key={r.value}
-                  onClick={() => setRisk(r.value)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    risk === r.value
-                      ? "border-blue-500 bg-blue-900/30"
-                      : "border-gray-800 bg-gray-900 hover:border-gray-600"
-                  }`}
+                  onClick={() => { setRisk(r.value); setHorizon(null); }}
+                  className={`p-4 rounded-xl border text-left transition-all ${risk === r.value ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-gray-50 hover:border-blue-200 hover:bg-blue-50/50"}`}
                 >
-                  <div className="text-white font-medium text-sm">{r.label}</div>
-                  <div className="text-gray-400 text-xs mt-0.5">{r.desc}</div>
+                  <div className="text-gray-900 font-medium text-sm">{r.label}</div>
+                  <div className="text-gray-500 text-xs mt-0.5">{r.desc}</div>
                 </button>
               ))}
             </div>
@@ -239,82 +235,95 @@ export default function StrategySelectorPage() {
 
         {/* Step 3 */}
         {outlook && risk && (
-          <div className="mb-8">
-            <h2 className="text-white font-semibold mb-3">
-              <span className="text-blue-400 mr-2">3.</span>What is your time horizon?
+          <div className="pt-4 border-t border-gray-100">
+            <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">3</span>
+              What is your time horizon?
             </h2>
             <div className="grid grid-cols-3 gap-3">
               {horizons.map((h) => (
                 <button
                   key={h.value}
                   onClick={() => setHorizon(h.value)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    horizon === h.value
-                      ? "border-blue-500 bg-blue-900/30"
-                      : "border-gray-800 bg-gray-900 hover:border-gray-600"
-                  }`}
+                  className={`p-4 rounded-xl border text-left transition-all ${horizon === h.value ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-gray-50 hover:border-blue-200 hover:bg-blue-50/50"}`}
                 >
-                  <div className="text-white font-medium text-sm">{h.label}</div>
-                  <div className="text-gray-400 text-xs mt-0.5">{h.desc}</div>
+                  <div className="text-gray-900 font-medium text-sm">{h.label}</div>
+                  <div className="text-gray-500 text-xs mt-0.5">{h.desc}</div>
                 </button>
               ))}
             </div>
           </div>
         )}
+      </div>
 
-        {/* Results */}
-        {recommendations && (
-          <div>
-            <h2 className="text-white font-semibold text-xl mb-4">Recommended Strategies</h2>
-            <div className="flex flex-col gap-4">
-              {recommendations.map((strategy, i) => (
-                <div key={i} className="bg-gray-900 rounded-xl border border-blue-500/30 p-5">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div>
-                      <span className="text-xs text-blue-400 font-medium">{i === 0 ? "Top Pick" : "Alternative"}</span>
-                      <h3 className="text-white font-semibold text-lg mt-0.5">{strategy.name}</h3>
-                    </div>
-                    {strategy.link && (
-                      <Link
-                        href={strategy.link}
-                        className="flex-shrink-0 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                      >
-                        Calculate this →
-                      </Link>
-                    )}
+      {/* Results */}
+      {recommendations && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Recommended Strategies</h2>
+          <div className="flex flex-col gap-4">
+            {recommendations.map((strategy, i) => (
+              <div key={i} className="bg-white rounded-xl border border-blue-200 p-5">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${i === 0 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{i === 0 ? "Top Pick" : "Alternative"}</span>
+                    <h3 className="text-gray-900 font-semibold text-lg mt-1">{strategy.name}</h3>
                   </div>
-                  <p className="text-gray-300 text-sm mb-3">{strategy.description}</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-gray-500 text-xs mb-1">Max Profit</div>
-                      <div className="text-green-400 text-sm font-medium">{strategy.maxProfit}</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-gray-500 text-xs mb-1">Max Loss</div>
-                      <div className="text-red-400 text-sm font-medium">{strategy.maxLoss}</div>
-                    </div>
+                  {strategy.link && (
+                    <Link href={strategy.link} className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+                      Calculate this →
+                    </Link>
+                  )}
+                </div>
+                <p className="text-gray-600 text-sm mb-3">{strategy.description}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-green-50 border border-green-100 rounded-lg p-3">
+                    <div className="text-gray-500 text-xs mb-1">Max Profit</div>
+                    <div className="text-green-700 text-sm font-medium">{strategy.maxProfit}</div>
+                  </div>
+                  <div className="bg-red-50 border border-red-100 rounded-lg p-3">
+                    <div className="text-gray-500 text-xs mb-1">Max Loss</div>
+                    <div className="text-red-700 text-sm font-medium">{strategy.maxLoss}</div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <button
-              onClick={() => { setOutlook(null); setRisk(null); setHorizon(null); }}
-              className="mt-4 text-gray-400 hover:text-white text-sm transition-colors"
-            >
-              ← Start over
-            </button>
+              </div>
+            ))}
           </div>
-        )}
-
-        <div className="mt-8 bg-gray-900 rounded-xl border border-gray-800 p-4">
-          <h3 className="text-white font-medium mb-2">How This Works</h3>
-          <p className="text-gray-400 text-sm leading-relaxed">
-            The strategy selector maps your three inputs — market outlook, risk tolerance, and time horizon — against a curated decision matrix of professional options strategies. The recommendations are based on common institutional practice: matching the strategy's payoff profile to the trader's scenario gives the highest probability of capturing the intended return.
-          </p>
+          <button
+            onClick={() => { setOutlook(null); setRisk(null); setHorizon(null); }}
+            className="mt-4 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            ← Start over
+          </button>
         </div>
+      )}
+
+      <InlineCTA heading="Not sure which strategy fits?" body="Browse the full strategy library with payoff diagrams, Greeks profiles, and when-to-use guides for each approach." cta="Browse Strategy Library →" />
+
+      <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">How the Selector Works</h2>
+      <p className="text-gray-600 leading-relaxed mb-4">The strategy selector maps your three inputs — market outlook, risk tolerance, and time horizon — against a curated decision matrix of professional options strategies. The recommendations match each strategy's payoff profile to your specific scenario, giving the highest probability of capturing the intended return.</p>
+      <p className="text-gray-600 leading-relaxed mb-6">Outlook defines which direction (or non-direction) you're expressing. Risk tolerance determines whether you want defined or undefined risk. Time horizon aligns theta decay and gamma exposure to your expected holding period. Together, they filter the universe of strategies down to the two best fits.</p>
+
+      <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
+      <ul className="space-y-3 mb-8">
+        {[
+          ["Match strategy to thesis, not preference", "Using a complex strategy when a simple one fits is a common mistake. The selector surfaces the simplest structure that captures your view."],
+          ["Defined risk first for new traders", "Spreads and covered calls cap your loss before you enter. This lets you learn without a single trade ending your account."],
+          ["DTE and outlook must align", "A long call with 7 DTE on a slow-moving stock is a bad match. Short DTE = fast moves only. Long DTE = patience required."],
+          ["Revisit as the trade evolves", "Your outlook might shift mid-trade. Run the selector again when the thesis changes rather than holding a misaligned position."],
+        ].map(([title, desc]) => (
+          <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
+            <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
+            <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
+          </li>
+        ))}
+      </ul>
+
+      <EmailCapture />
+      <RelatedCalculators currentSlug="strategy-selector" />
+      <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
+        <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Options trading involves substantial risk.
       </div>
       <CTABanner />
-    </div>
+    </CalcPageLayout>
   );
 }

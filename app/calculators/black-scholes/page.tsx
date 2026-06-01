@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { blackScholes } from "@/lib/blackScholes";
 import InputSlider from "@/components/calculators/InputSlider";
-import ResultCard from "@/components/calculators/ResultCard";
 import InfoTooltip from "@/components/calculators/InfoTooltip";
 import CTABanner from "@/components/calculators/CTABanner";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
