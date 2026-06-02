@@ -14,7 +14,6 @@ import {
 import { blackScholes, normCDF } from "@/lib/blackScholes";
 import CTABanner from "@/components/calculators/CTABanner";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
-import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 
@@ -414,11 +413,6 @@ export default function BlackScholesPage() {
           </p>
         </div>
 
-        <InlineCTA
-          heading="Use Black-Scholes on real trades"
-          body="Model your options positions before you enter. Open a live account and trade with professional-grade order routing."
-        />
-
         {/* ── Formula Inputs ── */}
         <h2 className="text-2xl font-bold text-gray-900 mt-10 mb-3">Black-Scholes Formula Inputs: Implied Volatility</h2>
         <p className="text-gray-600 leading-relaxed mb-5">
@@ -700,11 +694,6 @@ export default function BlackScholesPage() {
           <p className="text-sm text-gray-700">Long options have a time decay cost every single day. If the stock doesn&apos;t move fast enough or far enough, theta decay will erode the value of your option even if you&apos;re directionally correct.</p>
         </div>
 
-        <InlineCTA
-          heading="Ready to apply these concepts?"
-          body="Open a live account and access real-time options chains, Greeks, and professional order types."
-          cta="Open an Account →"
-        />
 
         {/* ── Assumptions ── */}
         <h2 className="text-2xl font-bold text-gray-900 mt-10 mb-3">Black-Scholes Assumptions &amp; Limitations</h2>
