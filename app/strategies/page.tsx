@@ -121,7 +121,7 @@ export default function StrategiesPage() {
       </nav>
 
       <h1 className="text-4xl font-bold text-gray-900 mb-2">Options Strategy Library</h1>
-      <p className="text-gray-500 text-sm mb-8">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-8">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       <p className="text-gray-600 text-lg leading-relaxed mb-10 max-w-2xl">
         Eight core options strategies — setup, max profit/loss, directional bias, and when to use each. Click any strategy to see a full breakdown with worked trade examples.

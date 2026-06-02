@@ -18,8 +18,8 @@ export default function TopNav() {
             </svg>
           </div>
           <div className="leading-none">
-            <p className="font-bold text-gray-900 dark:text-white text-sm">TradingBlock</p>
-            <p className="text-gray-400 text-[10px] mt-0.5">Options Hub · by Jake Joseph</p>
+            <p className="font-bold text-gray-900 dark:text-white text-sm">Options Hub</p>
+            <p className="text-gray-400 text-[10px] mt-0.5">by Jake Joseph</p>
           </div>
         </Link>
 
@@ -31,12 +31,14 @@ export default function TopNav() {
           >
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
-          <Link
-            href="/open-account"
+          <a
+            href="https://github.com/jakejoseph"
+            target="_blank"
+            rel="noopener noreferrer"
             className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
           >
-            Open a Live Account →
-          </Link>
+            GitHub →
+          </a>
         </div>
       </div>
     </header>

@@ -73,7 +73,7 @@ export default function RothIRAPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Roth IRA + Options Growth Calculator</h1>
-      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-800">
         <strong>Why Roth IRA + Options?</strong> A Roth IRA is the most powerful account for options income strategies — all gains, including premium collected from selling covered calls and cash-secured puts, grow and withdraw completely <strong>tax-free</strong>. There are no capital gains taxes, no ordinary income taxes on distributions in retirement.
@@ -147,7 +147,7 @@ export default function RothIRAPage() {
         </div>
       </div>
 
-      <InlineCTA heading="Put your Roth IRA to work with options" body="Open a TradingBlock account and start selling covered calls and cash-secured puts inside your tax-advantaged account." cta="Open a Live Account →" />
+      <InlineCTA heading="Put your Roth IRA to work with options" body="This calculator suite is open source — built with Next.js 14, Recharts, and Tailwind CSS by Jake Joseph." cta="View Source on GitHub →" />
 
       <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">Why the Roth IRA Is Perfect for Options Income</h2>
       <p className="text-gray-600 leading-relaxed mb-4">Most investors treat their Roth IRA as a passive index fund account. But the Roth's tax-free growth is even more powerful when combined with an active options income strategy. Every dollar of premium collected from selling covered calls or cash-secured puts grows and compounds tax-free — including any capital gains when assigned shares are eventually sold.</p>

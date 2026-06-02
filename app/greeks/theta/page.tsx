@@ -19,7 +19,7 @@ export default function ThetaPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Theta (Θ) — Time Decay Explained</h1>
-      <p className="text-gray-500 text-sm mb-8">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-8">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
         <div>

@@ -178,7 +178,7 @@ export default function StrategySelectorPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Options Strategy Selector</h1>
-      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       <p className="text-gray-600 mb-6">Answer three questions and get personalized strategy recommendations matched to your market view and risk tolerance.</p>
 

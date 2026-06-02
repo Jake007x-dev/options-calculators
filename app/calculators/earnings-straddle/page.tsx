@@ -62,7 +62,7 @@ export default function EarningsStraddlePage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Earnings Straddle Calculator</h1>
-      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       {/* Hero */}
       <div className={`rounded-xl border ${edgeBg} p-6 mb-6`}>

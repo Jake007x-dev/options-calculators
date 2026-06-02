@@ -31,13 +31,15 @@ export default function CTABanner() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <span className="text-white font-medium text-sm sm:text-base truncate">
-            Ready to put this to work?
+            Built by Jake Joseph — 16 free options calculators
           </span>
           <a
-            href="/open-account"
+            href="https://github.com/jakejoseph"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex-shrink-0 bg-white text-blue-600 font-semibold text-sm px-4 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
           >
-            Open a live account →
+            View on GitHub →
           </a>
         </div>
         <button

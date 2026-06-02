@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   title: {
     default: "Options Trading Calculators — Free Professional Tools",
-    template: "%s | TradingBlock",
+    template: "%s | Jake Joseph",
   },
   description:
     "Free professional-grade options trading calculators: Black-Scholes, Implied Volatility, Theta Decay, Monte Carlo, and more. Built for serious traders.",

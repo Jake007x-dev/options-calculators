@@ -117,7 +117,7 @@ export default function MonteCarloPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Monte Carlo Portfolio Simulator</h1>
-      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       {/* Hero */}
       <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-6 grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">

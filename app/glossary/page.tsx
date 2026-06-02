@@ -74,7 +74,7 @@ export default function GlossaryPage() {
       </nav>
 
       <h1 className="text-4xl font-bold text-gray-900 mb-2">Options Trading Glossary</h1>
-      <p className="text-gray-500 text-lg mb-2">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-lg mb-2">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
       <p className="text-gray-500 mb-8 max-w-2xl">
         Plain-English definitions for every major options concept — from the basics to advanced Greek mechanics. Click any term to jump to related calculators or strategy guides.
       </p>

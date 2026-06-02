@@ -48,7 +48,7 @@ export default function BlackScholesPage() {
         Free Black-Scholes Option Pricing Calculator
       </h1>
       <p className="text-gray-500 text-sm mb-6">
-        By: <span className="font-medium text-gray-700">Options Research Desk</span>
+        By: <span className="font-medium text-gray-700">Jake Joseph</span>
         &nbsp;·&nbsp; Updated June 2026
       </p>
 

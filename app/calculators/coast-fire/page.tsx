@@ -99,7 +99,7 @@ export default function CoastFIREPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Coast FIRE Calculator</h1>
-      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-sm text-green-800">
         <strong>What is Coast FIRE?</strong> Coast FIRE is the point where your savings are large enough that — even without another dollar of contributions — they'll grow to fully fund your retirement by your target age. Once you hit Coast FIRE, your job income only needs to cover current living expenses. Options premium can accelerate this dramatically.

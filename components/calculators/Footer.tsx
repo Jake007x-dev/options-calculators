@@ -82,23 +82,24 @@ export default function Footer() {
                   <rect x="12" y="12" width="6" height="6" rx="1" />
                 </svg>
               </div>
-              <p className="font-bold text-gray-900 dark:text-white text-sm">TradingBlock</p>
+              <p className="font-bold text-gray-900 dark:text-white text-sm">Jake Joseph</p>
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-3">
-              Professional-grade options tools. Free, real-time, no signup required.
+              Professional-grade options tools. Free, no signup required.
             </p>
-            <p className="text-gray-400 text-xs mb-4">Built by Jake Joseph</p>
-            <Link
-              href="/open-account"
+            <a
+              href="https://github.com/jakejoseph"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
             >
-              Open a Live Account →
-            </Link>
+              View on GitHub →
+            </a>
           </div>
         </div>
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <p className="text-gray-400 dark:text-gray-500 text-xs leading-relaxed">
-            <strong className="text-gray-600 dark:text-gray-400">Disclaimer:</strong> All calculators and content are for educational purposes only and do not constitute investment advice. Options trading involves substantial risk of loss and is not suitable for all investors. © 2026 TradingBlock. Built by Jake Joseph.
+            <strong className="text-gray-600 dark:text-gray-400">Disclaimer:</strong> All calculators and content are for educational purposes only and do not constitute investment advice. Options trading involves substantial risk of loss and is not suitable for all investors. © 2026 Jake Joseph.
           </p>
         </div>
       </div>

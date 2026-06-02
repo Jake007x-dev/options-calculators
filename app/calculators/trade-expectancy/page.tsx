@@ -62,7 +62,7 @@ export default function TradeExpectancyPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Trade Expectancy Calculator</h1>
-      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Options Research Desk</span> · Updated June 2026</p>
+      <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
       {/* Hero */}
       <div className={`rounded-xl border p-6 mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center ${isPositive ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
