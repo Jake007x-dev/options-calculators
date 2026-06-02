@@ -2,14 +2,20 @@
 
 import { useMemo, useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
-import InputSlider from "@/components/calculators/InputSlider";
-import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
-import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import CTABanner from "@/components/calculators/CTABanner";
 import Link from "next/link";
+
+const NAVY = "#051636";
+const TEAL = "#1db2b0";
+const BORDER = "rgba(29,178,176,0.18)";
+const CARD = "rgba(10,34,72,0.8)";
+const TEXT = "#f2f8fd";
+const MUTED = "#9dbdd0";
+const PROFIT = "#1dd1a1";
+const LOSS = "#e05c6a";
 
 const PRESETS = [
   { label: "AAPL Earnings", stock: 200, call: 5.5, put: 5.0, hist: 8, dte: 1 },
@@ -50,8 +56,7 @@ export default function EarningsStraddlePage() {
     setStockPrice(p.stock); setCallPrice(p.call); setPutPrice(p.put); setHistoricalMove(p.hist); setDte(p.dte);
   }
 
-  const edgeBg = calc.edgeColor === "green" ? "bg-green-50 border-green-200" : calc.edgeColor === "red" ? "bg-red-50 border-red-200" : "bg-yellow-50 border-yellow-200";
-  const edgeText = calc.edgeColor === "green" ? "text-green-700" : calc.edgeColor === "red" ? "text-red-700" : "text-yellow-700";
+  const edgeBorderColor = calc.edgeColor === "green" ? PROFIT : calc.edgeColor === "red" ? LOSS : "#eab308";
 
   return (
     <CalcPageLayout>
@@ -64,89 +69,171 @@ export default function EarningsStraddlePage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-1">Earnings Straddle Calculator</h1>
       <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
-      {/* Hero */}
-      <div className={`rounded-xl border ${edgeBg} p-6 mb-6`}>
-        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Edge Signal</p>
-        <p className={`text-2xl font-bold mb-1 ${edgeText}`}>{calc.edgeLabel}</p>
-        <p className="text-sm text-gray-600">Implied move is <strong>{calc.impliedMovePct.toFixed(1)}%</strong> vs. historical avg of <strong>{historicalMove}%</strong></p>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center"><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Straddle Cost</p><p className="text-2xl font-bold text-gray-800">${fmt(calc.straddlePrice)}</p></div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center"><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Implied Move</p><p className="text-2xl font-bold text-blue-600">±{calc.impliedMovePct.toFixed(1)}%</p></div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center"><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Upper BE</p><p className="text-2xl font-bold text-green-600">${fmt(calc.breakEvenUpper)}</p></div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center"><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Lower BE</p><p className="text-2xl font-bold text-red-500">${fmt(calc.breakEvenLower)}</p></div>
-      </div>
-
-      {/* Presets */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <span className="text-xs text-gray-500 self-center">Quick load:</span>
-        {PRESETS.map((p) => (
-          <button key={p.label} onClick={() => applyPreset(p)} className="text-xs px-3 py-1.5 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-colors">{p.label}</button>
-        ))}
-      </div>
-
-      {/* Calculator */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-6">
-          <InputSlider label="Stock Price ($)" value={stockPrice} onChange={setStockPrice} min={1} max={2000} step={0.5} prefix="$" />
-          <InputSlider label="ATM Call Price ($)" value={callPrice} onChange={setCallPrice} min={0.01} max={200} step={0.01} prefix="$" />
-          <InputSlider label="ATM Put Price ($)" value={putPrice} onChange={setPutPrice} min={0.01} max={200} step={0.01} prefix="$" />
-          <InputSlider label="Historical Avg Earnings Move (%)" value={historicalMove} onChange={setHistoricalMove} min={0.5} max={50} step={0.5} suffix="%" />
-          <InputSlider label="Days to Expiration" value={dte} onChange={setDte} min={1} max={30} step={1} suffix=" days" decimals={0} />
-        </div>
-        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">P&L at Expiration</p>
-          <ClientOnly height={220}>
-            <div style={{ height: 220 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={calc.priceRange} margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="price" tick={{ fill: "#9ca3af", fontSize: 10 }} stroke="#e5e7eb" tickFormatter={(v) => `$${Number(v).toFixed(0)}`} interval={7} />
-                <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} stroke="#e5e7eb" tickFormatter={(v) => `$${v}`} />
-                <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 11 }} formatter={(v, name) => [`$${Number(v).toFixed(2)}`, name === "longStraddle" ? "Long Straddle" : "Short Straddle"]} labelFormatter={(l) => `Stock: $${Number(l).toFixed(2)}`} />
-                <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="4 2" />
-                <ReferenceLine x={calc.breakEvenUpper} stroke="#22c55e" strokeDasharray="3 2" />
-                <ReferenceLine x={calc.breakEvenLower} stroke="#22c55e" strokeDasharray="3 2" />
-                <Line type="monotone" dataKey="longStraddle" stroke="#3b82f6" dot={false} strokeWidth={2} name="Long Straddle" />
-                <Line type="monotone" dataKey="shortStraddle" stroke="#ef4444" dot={false} strokeWidth={2} strokeDasharray="5 3" name="Short Straddle" />
-              </LineChart>
-            </ResponsiveContainer>
+      {/* ── TRADINGBLOCK WIDGET ── */}
+      <div style={{
+        width: "100%",
+        fontFamily: "'Poppins', sans-serif",
+        background: NAVY,
+        borderRadius: 16,
+        overflow: "hidden",
+        color: TEXT,
+        boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px ${BORDER}`,
+        marginBottom: 8,
+      }}>
+        <div style={{ padding: "24px 24px 28px" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${BORDER}` }}>
+            <div style={{ width: 42, height: 42, flexShrink: 0, background: "rgba(29,178,176,0.1)", border: "1px solid rgba(29,178,176,0.28)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg viewBox="0 0 24 24" width={18} height={18} stroke={TEAL} fill="none" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Earnings Straddle Analyzer</div>
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 3, fontWeight: 400 }}>Implied vs. historical move — find the edge</div>
+            </div>
           </div>
-          </ClientOnly>
-          <div className="flex gap-4 mt-2 text-xs text-gray-500">
-            <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-blue-500 inline-block" /> Long Straddle</span>
-            <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-red-500 inline-block border-dashed" /> Short Straddle</span>
-            <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-green-500 inline-block" /> Breakeven</span>
+
+          {/* Edge signal bar */}
+          <div style={{ padding: "12px 16px", marginBottom: 16, background: `${edgeBorderColor}14`, border: `1px solid ${edgeBorderColor}55`, borderRadius: 10 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>Edge Signal</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: edgeBorderColor }}>{calc.edgeLabel}</div>
+            <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Implied move: <strong style={{ color: TEXT }}>{calc.impliedMovePct.toFixed(1)}%</strong> vs. historical avg of <strong style={{ color: TEXT }}>{historicalMove}%</strong></div>
+          </div>
+
+          {/* Presets */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+            {PRESETS.map((p) => (
+              <button key={p.label} onClick={() => applyPreset(p)} type="button" style={{ fontSize: 11, padding: "5px 12px", borderRadius: 20, border: `1px solid ${BORDER}`, background: "rgba(29,178,176,0.07)", color: MUTED, cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>{p.label}</button>
+            ))}
+          </div>
+
+          {/* Two-column body */}
+          <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", gap: 20, alignItems: "start" }}>
+            {/* Left: inputs */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <SectionLabel>Market Inputs</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <Field label="Stock Price ($)"><Stepper value={stockPrice} onChange={setStockPrice} min={1} step={1} /></Field>
+                <Field label="ATM Call Price ($)"><Stepper value={callPrice} onChange={setCallPrice} min={0.01} step={0.25} /></Field>
+                <Field label="ATM Put Price ($)"><Stepper value={putPrice} onChange={setPutPrice} min={0.01} step={0.25} /></Field>
+                <Field label="Historical Move (%)"><Stepper value={historicalMove} onChange={setHistoricalMove} min={0.5} step={0.5} /></Field>
+                <Field label="Days to Expiration"><Stepper value={dte} onChange={setDte} min={1} step={1} /></Field>
+              </div>
+            </div>
+
+            {/* Right: results + chart */}
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 16 }}>
+                {[
+                  { label: "Straddle Cost", value: `$${fmt(calc.straddlePrice)}`, color: TEAL, desc: "total premium paid" },
+                  { label: "Implied Move", value: `±${calc.impliedMovePct.toFixed(1)}%`, color: "#b4e1e8", desc: "1σ expected range" },
+                  { label: "Upper Breakeven", value: `$${fmt(calc.breakEvenUpper)}`, color: PROFIT, desc: "long straddle BE" },
+                  { label: "Lower Breakeven", value: `$${fmt(calc.breakEvenLower)}`, color: LOSS, desc: "long straddle BE" },
+                ].map((m) => (
+                  <div key={m.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 9, padding: "12px 12px 10px", position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: m.color, opacity: 0.6 }} />
+                    <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.15em" }}>{m.label}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: m.color, letterSpacing: "-0.02em" }}>{m.value}</div>
+                    <div style={{ fontSize: 9, color: MUTED }}>{m.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ fontSize: 11, fontWeight: 500, color: "#b4e1e8", marginBottom: 8 }}>P&amp;L at Expiration</div>
+              <div style={{ width: "100%", height: 220 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={calc.priceRange} margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(48,96,146,0.18)" />
+                    <XAxis dataKey="price" tick={{ fill: MUTED, fontSize: 10, fontFamily: "'Poppins', sans-serif" }} tickFormatter={(v) => `$${Number(v).toFixed(0)}`} interval={7} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fill: MUTED, fontSize: 10, fontFamily: "'Poppins', sans-serif" }} tickFormatter={(v) => `$${v}`} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: "rgba(5,22,54,0.97)", border: "1px solid rgba(29,178,176,0.4)", borderRadius: 8, fontSize: 11, fontFamily: "'Poppins', sans-serif" }} formatter={(v, name) => [`$${Number(v).toFixed(2)}`, name === "longStraddle" ? "Long Straddle" : "Short Straddle"]} labelFormatter={(l) => `Stock: $${Number(l).toFixed(2)}`} />
+                    <ReferenceLine y={0} stroke={MUTED} strokeDasharray="4 2" />
+                    <ReferenceLine x={calc.breakEvenUpper} stroke={PROFIT} strokeDasharray="3 2" />
+                    <ReferenceLine x={calc.breakEvenLower} stroke={PROFIT} strokeDasharray="3 2" />
+                    <Line type="monotone" dataKey="longStraddle" stroke={TEAL} dot={false} strokeWidth={2} name="longStraddle" />
+                    <Line type="monotone" dataKey="shortStraddle" stroke={LOSS} dot={false} strokeWidth={2} strokeDasharray="5 3" name="shortStraddle" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div style={{ display: "flex", gap: 14, marginTop: 8, flexWrap: "wrap" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}><span style={{ width: 22, height: 2, background: TEAL, display: "inline-block" }} /> Long Straddle</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}><span style={{ width: 22, height: 2, background: LOSS, display: "inline-block" }} /> Short Straddle</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}><span style={{ width: 22, height: 2, background: PROFIT, display: "inline-block" }} /> Breakeven</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginTop: 20, padding: "14px 18px", background: "rgba(29,178,176,0.05)", border: "1px solid rgba(29,178,176,0.14)", borderRadius: 8, fontSize: 11, lineHeight: 1.65, color: MUTED }}>
+            <svg viewBox="0 0 24 24" width={15} height={15} style={{ flexShrink: 0, marginTop: 2, stroke: TEAL, fill: "none", opacity: 0.8 }} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>
+              <strong style={{ color: TEAL, fontWeight: 600 }}>For educational purposes only.</strong>{" "}
+              Straddle analysis is theoretical. IV crush, liquidity, and early assignment can significantly affect real outcomes.
+            </span>
           </div>
         </div>
       </div>
 
-      <InlineCTA heading="Learn the full straddle strategy" body="See when to buy vs. sell a straddle around earnings and how to manage the IV crush risk." cta="Read the Strategy Guide →" />
+      {/* ── EDUCATIONAL CONTENT ── */}
+      <div className="mt-10 max-w-none">
+        <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">How to Use This Calculator</h2>
+        <p className="text-gray-600 leading-relaxed mb-4">Enter the ATM call and put prices from your options chain the day before earnings. The calculator tells you whether the implied move (what the options are pricing) is larger or smaller than the historical average move. If the implied move is significantly larger than historical, the straddle is overpriced — consider selling. If smaller, consider buying.</p>
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">How to Use This Calculator</h2>
-      <p className="text-gray-600 leading-relaxed mb-4">Enter the ATM call and put prices from your options chain the day before earnings. The calculator tells you whether the implied move (what the options are pricing) is larger or smaller than the historical average move. If the implied move is significantly larger than historical, the straddle is overpriced — consider selling. If smaller, consider buying.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
+        <ul className="space-y-3 mb-8">
+          {[
+            ["The straddle price = implied move", "The combined ATM call + put price directly tells you what move the market is pricing in. A $10 straddle on a $150 stock implies a ±6.7% move."],
+            ["IV crush is the main risk for buyers", "After earnings, IV collapses 40–70%. Even a large move can lose money if the actual move doesn't exceed the implied move."],
+            ["Selling straddles is high-risk, high-reward", "Short straddles profit from IV crush but face unlimited theoretical loss if the stock moves dramatically. Use only with proper risk management."],
+            ["Historical moves are your edge finder", "If a stock has moved 12% on the last 4 earnings but the straddle implies only 7%, you have a statistical edge buying the straddle."],
+          ].map(([title, desc]) => (
+            <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
+              <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
+              <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
+            </li>
+          ))}
+        </ul>
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
-      <ul className="space-y-3 mb-8">
-        {[
-          ["The straddle price = implied move", "The combined ATM call + put price directly tells you what move the market is pricing in. A $10 straddle on a $150 stock implies a ±6.7% move."],
-          ["IV crush is the main risk for buyers", "After earnings, IV collapses 40–70%. Even a large move can lose money if the actual move doesn't exceed the implied move."],
-          ["Selling straddles is high-risk, high-reward", "Short straddles profit from IV crush but face unlimited theoretical loss if the stock moves dramatically. Use only with proper risk management."],
-          ["Historical moves are your edge finder", "If a stock has moved 12% on the last 4 earnings but the straddle implies only 7%, you have a statistical edge buying the straddle."],
-        ].map(([title, desc]) => (
-          <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
-            <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
-            <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
-          </li>
-        ))}
-      </ul>
-
-      <EmailCapture />
-      <RelatedCalculators currentSlug="earnings-straddle" />
-      <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
-        <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Options trading involves substantial risk.
+        <EmailCapture />
+        <RelatedCalculators currentSlug="earnings-straddle" />
+        <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
+          <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Options trading involves substantial risk.
+        </div>
       </div>
+
       <CTABanner />
     </CalcPageLayout>
+  );
+}
+
+function Stepper({ value, onChange, min = 0, step = 1 }: { value: number; onChange: (v: number) => void; min?: number; step?: number }) {
+  const dec = () => onChange(Math.max(min, Math.round((value - step) * 10000) / 10000));
+  const inc = () => onChange(Math.round((value + step) * 10000) / 10000);
+  return (
+    <div style={{ display: "flex", alignItems: "stretch" }}>
+      <button onClick={dec} type="button" style={{ width: 28, flexShrink: 0, background: "rgba(29,178,176,0.08)", border: `1px solid ${BORDER}`, color: TEAL, fontSize: 16, cursor: "pointer", fontFamily: "'Poppins', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "6px 0 0 6px" }}>−</button>
+      <input type="number" value={value} onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.max(min, v)); }} style={{ flex: 1, textAlign: "center", background: "rgba(10,34,72,0.6)", border: `1px solid ${BORDER}`, borderLeft: "none", borderRight: "none", color: TEXT, fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, padding: "5px 7px", outline: "none", width: "100%" }} />
+      <button onClick={inc} type="button" style={{ width: 28, flexShrink: 0, background: "rgba(29,178,176,0.08)", border: `1px solid ${BORDER}`, color: TEAL, fontSize: 16, cursor: "pointer", fontFamily: "'Poppins', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0 6px 6px 0" }}>+</button>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <label style={{ fontSize: 10, fontWeight: 500, color: MUTED, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 11, fontWeight: 700, color: "#e0f0f8", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8, marginTop: 14 }}>
+      {children}
+    </div>
   );
 }

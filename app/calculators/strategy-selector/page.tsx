@@ -3,10 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
-import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import CTABanner from "@/components/calculators/CTABanner";
+
+const NAVY = "#051636";
+const NAVY2 = "#0a2248";
+const TEAL = "#1db2b0";
+const BORDER = "rgba(29,178,176,0.18)";
+const CARD = "rgba(10,34,72,0.8)";
+const TEXT = "#f2f8fd";
+const MUTED = "#9dbdd0";
+const PROFIT = "#1dd1a1";
+const LOSS = "#e05c6a";
 
 type Outlook = "bullish" | "bearish" | "neutral" | "volatile";
 type Risk = "conservative" | "aggressive";
@@ -182,147 +191,180 @@ export default function StrategySelectorPage() {
 
       <p className="text-gray-600 mb-6">Answer three questions and get personalized strategy recommendations matched to your market view and risk tolerance.</p>
 
-      {/* Progress bar */}
-      <div className="flex gap-2 mb-8">
-        {[1, 2, 3].map((s) => (
-          <div key={s} className={`flex-1 h-1.5 rounded-full transition-colors ${step > s ? "bg-blue-600" : step === s ? "bg-blue-300" : "bg-gray-200"}`} />
-        ))}
-      </div>
+      {/* ── TRADINGBLOCK WIDGET ── */}
+      <div style={{
+        width: "100%",
+        fontFamily: "'Poppins', sans-serif",
+        background: NAVY,
+        borderRadius: 16,
+        overflow: "hidden",
+        color: TEXT,
+        boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px ${BORDER}`,
+        marginBottom: 8,
+      }}>
+        <div style={{ padding: "24px 24px 28px" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${BORDER}` }}>
+            <div style={{ width: 42, height: 42, flexShrink: 0, background: "rgba(29,178,176,0.1)", border: "1px solid rgba(29,178,176,0.28)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg viewBox="0 0 24 24" width={18} height={18} stroke={TEAL} fill="none" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Strategy Selector</div>
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 3, fontWeight: 400 }}>3 questions → personalized strategy recommendations</div>
+            </div>
+          </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 mb-8">
-        {/* Step 1 */}
-        <div className="mb-6">
-          <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
-            What is your market outlook?
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {outlooks.map((o) => (
-              <button
-                key={o.value}
-                onClick={() => { setOutlook(o.value); setRisk(null); setHorizon(null); }}
-                className={`p-4 rounded-xl border text-left transition-all ${outlook === o.value ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-gray-50 hover:border-blue-200 hover:bg-blue-50/50"}`}
-              >
-                <div className="text-xl mb-1">{o.emoji}</div>
-                <div className="text-gray-900 font-medium text-sm">{o.label}</div>
-                <div className="text-gray-500 text-xs mt-0.5">{o.desc}</div>
-              </button>
+          {/* Progress bar */}
+          <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+            {[1, 2, 3].map((s) => (
+              <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: step > s ? TEAL : step === s ? "rgba(29,178,176,0.4)" : "rgba(29,178,176,0.1)", transition: "background 0.3s" }} />
             ))}
           </div>
-        </div>
 
-        {/* Step 2 */}
-        {outlook && (
-          <div className="mb-6 pt-4 border-t border-gray-100">
-            <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">2</span>
-              What is your risk preference?
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {risks.map((r) => (
-                <button
-                  key={r.value}
-                  onClick={() => { setRisk(r.value); setHorizon(null); }}
-                  className={`p-4 rounded-xl border text-left transition-all ${risk === r.value ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-gray-50 hover:border-blue-200 hover:bg-blue-50/50"}`}
-                >
-                  <div className="text-gray-900 font-medium text-sm">{r.label}</div>
-                  <div className="text-gray-500 text-xs mt-0.5">{r.desc}</div>
-                </button>
-              ))}
+          {/* Step 1 */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#e0f0f8", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 20, height: 20, borderRadius: "50%", background: TEAL, color: NAVY, fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>1</span>
+              What is your market outlook?
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              {outlooks.map((o) => {
+                const isActive = outlook === o.value;
+                return (
+                  <button key={o.value} type="button" onClick={() => { setOutlook(o.value); setRisk(null); setHorizon(null); }} style={{ padding: "12px 8px", borderRadius: 10, border: `1px solid ${isActive ? TEAL : BORDER}`, background: isActive ? "rgba(29,178,176,0.15)" : "rgba(10,34,72,0.4)", color: isActive ? TEXT : MUTED, cursor: "pointer", fontFamily: "'Poppins', sans-serif", transition: "all .2s", textAlign: "left" }}>
+                    <div style={{ fontSize: 18, marginBottom: 4 }}>{o.emoji}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: isActive ? TEXT : "#b4e1e8" }}>{o.label}</div>
+                    <div style={{ fontSize: 10, color: MUTED, marginTop: 2 }}>{o.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
 
-        {/* Step 3 */}
-        {outlook && risk && (
-          <div className="pt-4 border-t border-gray-100">
-            <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">3</span>
-              What is your time horizon?
-            </h2>
-            <div className="grid grid-cols-3 gap-3">
-              {horizons.map((h) => (
-                <button
-                  key={h.value}
-                  onClick={() => setHorizon(h.value)}
-                  className={`p-4 rounded-xl border text-left transition-all ${horizon === h.value ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-gray-50 hover:border-blue-200 hover:bg-blue-50/50"}`}
-                >
-                  <div className="text-gray-900 font-medium text-sm">{h.label}</div>
-                  <div className="text-gray-500 text-xs mt-0.5">{h.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Results */}
-      {recommendations && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Recommended Strategies</h2>
-          <div className="flex flex-col gap-4">
-            {recommendations.map((strategy, i) => (
-              <div key={i} className="bg-white rounded-xl border border-blue-200 p-5">
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${i === 0 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{i === 0 ? "Top Pick" : "Alternative"}</span>
-                    <h3 className="text-gray-900 font-semibold text-lg mt-1">{strategy.name}</h3>
-                  </div>
-                  {strategy.link && (
-                    <Link href={strategy.link} className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
-                      Calculate this →
-                    </Link>
-                  )}
-                </div>
-                <p className="text-gray-600 text-sm mb-3">{strategy.description}</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-green-50 border border-green-100 rounded-lg p-3">
-                    <div className="text-gray-500 text-xs mb-1">Max Profit</div>
-                    <div className="text-green-700 text-sm font-medium">{strategy.maxProfit}</div>
-                  </div>
-                  <div className="bg-red-50 border border-red-100 rounded-lg p-3">
-                    <div className="text-gray-500 text-xs mb-1">Max Loss</div>
-                    <div className="text-red-700 text-sm font-medium">{strategy.maxLoss}</div>
-                  </div>
-                </div>
+          {/* Step 2 */}
+          {outlook && (
+            <div style={{ marginBottom: 20, paddingTop: 16, borderTop: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#e0f0f8", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 20, height: 20, borderRadius: "50%", background: TEAL, color: NAVY, fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>2</span>
+                What is your risk preference?
               </div>
-            ))}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {risks.map((r) => {
+                  const isActive = risk === r.value;
+                  return (
+                    <button key={r.value} type="button" onClick={() => { setRisk(r.value); setHorizon(null); }} style={{ padding: "12px 14px", borderRadius: 10, border: `1px solid ${isActive ? TEAL : BORDER}`, background: isActive ? "rgba(29,178,176,0.15)" : "rgba(10,34,72,0.4)", color: isActive ? TEXT : MUTED, cursor: "pointer", fontFamily: "'Poppins', sans-serif", transition: "all .2s", textAlign: "left" }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: isActive ? TEXT : "#b4e1e8" }}>{r.label}</div>
+                      <div style={{ fontSize: 10, color: MUTED, marginTop: 2 }}>{r.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Step 3 */}
+          {outlook && risk && (
+            <div style={{ marginBottom: 20, paddingTop: 16, borderTop: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#e0f0f8", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 20, height: 20, borderRadius: "50%", background: TEAL, color: NAVY, fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>3</span>
+                What is your time horizon?
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                {horizons.map((h) => {
+                  const isActive = horizon === h.value;
+                  return (
+                    <button key={h.value} type="button" onClick={() => setHorizon(h.value)} style={{ padding: "12px 14px", borderRadius: 10, border: `1px solid ${isActive ? TEAL : BORDER}`, background: isActive ? "rgba(29,178,176,0.15)" : "rgba(10,34,72,0.4)", color: isActive ? TEXT : MUTED, cursor: "pointer", fontFamily: "'Poppins', sans-serif", transition: "all .2s", textAlign: "left" }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: isActive ? TEXT : "#b4e1e8" }}>{h.label}</div>
+                      <div style={{ fontSize: 10, color: MUTED, marginTop: 2 }}>{h.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {recommendations && (
+            <div style={{ paddingTop: 16, borderTop: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: TEAL, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Recommended Strategies</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {recommendations.map((strategy, i) => (
+                  <div key={i} style={{ background: CARD, border: `1px solid ${i === 0 ? "rgba(29,178,176,0.4)" : BORDER}`, borderRadius: 12, padding: "16px 18px", position: "relative", overflow: "hidden" }}>
+                    {i === 0 && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: TEAL, opacity: 0.8 }} />}
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                      <div>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: i === 0 ? "rgba(29,178,176,0.2)" : "rgba(157,189,208,0.15)", color: i === 0 ? TEAL : MUTED, letterSpacing: "0.08em", textTransform: "uppercase" }}>{i === 0 ? "Top Pick" : "Alternative"}</span>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginTop: 6 }}>{strategy.name}</div>
+                      </div>
+                      {strategy.link && (
+                        <Link href={strategy.link} style={{ flexShrink: 0, background: TEAL, color: NAVY, fontSize: 11, fontWeight: 700, padding: "7px 14px", borderRadius: 8, textDecoration: "none", whiteSpace: "nowrap" }}>
+                          Calculate →
+                        </Link>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 12, color: MUTED, marginBottom: 10 }}>{strategy.description}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <div style={{ background: "rgba(29,209,161,0.08)", border: "1px solid rgba(29,209,161,0.2)", borderRadius: 8, padding: "8px 10px" }}>
+                        <div style={{ fontSize: 9, color: MUTED }}>Max Profit</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: PROFIT, marginTop: 2 }}>{strategy.maxProfit}</div>
+                      </div>
+                      <div style={{ background: "rgba(224,92,106,0.08)", border: "1px solid rgba(224,92,106,0.2)", borderRadius: 8, padding: "8px 10px" }}>
+                        <div style={{ fontSize: 9, color: MUTED }}>Max Loss</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: LOSS, marginTop: 2 }}>{strategy.maxLoss}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button type="button" onClick={() => { setOutlook(null); setRisk(null); setHorizon(null); }} style={{ marginTop: 12, fontSize: 12, color: TEAL, background: "none", border: "none", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>
+                ← Start over
+              </button>
+            </div>
+          )}
+
+          {/* Disclaimer */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginTop: 20, padding: "14px 18px", background: "rgba(29,178,176,0.05)", border: "1px solid rgba(29,178,176,0.14)", borderRadius: 8, fontSize: 11, lineHeight: 1.65, color: MUTED }}>
+            <svg viewBox="0 0 24 24" width={15} height={15} style={{ flexShrink: 0, marginTop: 2, stroke: TEAL, fill: "none", opacity: 0.8 }} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>
+              <strong style={{ color: TEAL, fontWeight: 600 }}>For educational purposes only.</strong>{" "}
+              Strategy recommendations are general guidance only. Always consider your full financial situation before trading.
+            </span>
           </div>
-          <button
-            onClick={() => { setOutlook(null); setRisk(null); setHorizon(null); }}
-            className="mt-4 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            ← Start over
-          </button>
         </div>
-      )}
-
-      <InlineCTA heading="Not sure which strategy fits?" body="Browse the full strategy library with payoff diagrams, Greeks profiles, and when-to-use guides for each approach." cta="Browse Strategy Library →" />
-
-      <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">How the Selector Works</h2>
-      <p className="text-gray-600 leading-relaxed mb-4">The strategy selector maps your three inputs — market outlook, risk tolerance, and time horizon — against a curated decision matrix of professional options strategies. The recommendations match each strategy's payoff profile to your specific scenario, giving the highest probability of capturing the intended return.</p>
-      <p className="text-gray-600 leading-relaxed mb-6">Outlook defines which direction (or non-direction) you're expressing. Risk tolerance determines whether you want defined or undefined risk. Time horizon aligns theta decay and gamma exposure to your expected holding period. Together, they filter the universe of strategies down to the two best fits.</p>
-
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
-      <ul className="space-y-3 mb-8">
-        {[
-          ["Match strategy to thesis, not preference", "Using a complex strategy when a simple one fits is a common mistake. The selector surfaces the simplest structure that captures your view."],
-          ["Defined risk first for new traders", "Spreads and covered calls cap your loss before you enter. This lets you learn without a single trade ending your account."],
-          ["DTE and outlook must align", "A long call with 7 DTE on a slow-moving stock is a bad match. Short DTE = fast moves only. Long DTE = patience required."],
-          ["Revisit as the trade evolves", "Your outlook might shift mid-trade. Run the selector again when the thesis changes rather than holding a misaligned position."],
-        ].map(([title, desc]) => (
-          <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
-            <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
-            <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
-          </li>
-        ))}
-      </ul>
-
-      <EmailCapture />
-      <RelatedCalculators currentSlug="strategy-selector" />
-      <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
-        <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Options trading involves substantial risk.
       </div>
+
+      {/* ── EDUCATIONAL CONTENT ── */}
+      <div className="mt-10 max-w-none">
+        <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">How the Selector Works</h2>
+        <p className="text-gray-600 leading-relaxed mb-4">The strategy selector maps your three inputs — market outlook, risk tolerance, and time horizon — against a curated decision matrix of professional options strategies. The recommendations match each strategy's payoff profile to your specific scenario, giving the highest probability of capturing the intended return.</p>
+        <p className="text-gray-600 leading-relaxed mb-6">Outlook defines which direction (or non-direction) you're expressing. Risk tolerance determines whether you want defined or undefined risk. Time horizon aligns theta decay and gamma exposure to your expected holding period. Together, they filter the universe of strategies down to the two best fits.</p>
+
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
+        <ul className="space-y-3 mb-8">
+          {[
+            ["Match strategy to thesis, not preference", "Using a complex strategy when a simple one fits is a common mistake. The selector surfaces the simplest structure that captures your view."],
+            ["Defined risk first for new traders", "Spreads and covered calls cap your loss before you enter. This lets you learn without a single trade ending your account."],
+            ["DTE and outlook must align", "A long call with 7 DTE on a slow-moving stock is a bad match. Short DTE = fast moves only. Long DTE = patience required."],
+            ["Revisit as the trade evolves", "Your outlook might shift mid-trade. Run the selector again when the thesis changes rather than holding a misaligned position."],
+          ].map(([title, desc]) => (
+            <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
+              <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
+              <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
+            </li>
+          ))}
+        </ul>
+
+        <EmailCapture />
+        <RelatedCalculators currentSlug="strategy-selector" />
+        <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
+          <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Options trading involves substantial risk.
+        </div>
+      </div>
+
       <CTABanner />
     </CalcPageLayout>
   );

@@ -2,14 +2,19 @@
 
 import { useMemo, useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
-import InputSlider from "@/components/calculators/InputSlider";
-import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
-import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import CTABanner from "@/components/calculators/CTABanner";
 import Link from "next/link";
+
+const NAVY = "#051636";
+const TEAL = "#1db2b0";
+const BORDER = "rgba(29,178,176,0.18)";
+const CARD = "rgba(10,34,72,0.8)";
+const TEXT = "#f2f8fd";
+const MUTED = "#9dbdd0";
+const PROFIT = "#1dd1a1";
 
 const PRESETS = [
   { label: "Wheel $50k Account", startBalance: 50000, monthlyPremium: 800, years: 20, annualReturn: 7 },
@@ -30,7 +35,7 @@ export default function PremiumReinvestmentPage() {
 
   const calc = useMemo(() => {
     const monthlyRate = annualReturn / 100 / 12;
-    const spRate = 10 / 100 / 12; // S&P 500 passive (no premium)
+    const spRate = 10 / 100 / 12;
 
     const chartData = Array.from({ length: years + 1 }, (_, yr) => {
       let optionsBalance = startBalance;
@@ -39,11 +44,7 @@ export default function PremiumReinvestmentPage() {
         optionsBalance = optionsBalance * (1 + monthlyRate) + monthlyPremium;
         passiveBalance = passiveBalance * (1 + spRate);
       }
-      return {
-        year: yr,
-        options: Math.round(optionsBalance),
-        passive: Math.round(passiveBalance),
-      };
+      return { year: yr, options: Math.round(optionsBalance), passive: Math.round(passiveBalance) };
     });
 
     const finalOptions = chartData[years].options;
@@ -69,88 +70,170 @@ export default function PremiumReinvestmentPage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-1">"What If I Reinvested My Options Premium?" Calculator</h1>
       <p className="text-gray-500 text-sm mb-6">By: <span className="font-medium text-gray-700">Jake Joseph</span> · Updated June 2026</p>
 
-      {/* Hero */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Ending Balance</p><p className="text-3xl font-bold text-green-600">{fmtK(calc.finalOptions)}</p><p className="text-xs text-gray-400 mt-1">options + reinvestment</p></div>
-        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Premium</p><p className="text-2xl font-bold text-blue-600">${fmt(calc.totalPremium)}</p><p className="text-xs text-gray-400 mt-1">collected over {years} yrs</p></div>
-        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Compounding Gain</p><p className="text-2xl font-bold text-purple-600">${fmt(calc.totalGrowth)}</p><p className="text-xs text-gray-400 mt-1">growth on top of premium</p></div>
-        <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-1">vs. Passive S&P</p><p className="text-2xl font-bold text-orange-500">+{fmtK(calc.advantage)}</p><p className="text-xs text-gray-400 mt-1">additional wealth</p></div>
-      </div>
-
-      {/* Presets */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <span className="text-xs text-gray-500 self-center">Quick load:</span>
-        {PRESETS.map((p) => (
-          <button key={p.label} onClick={() => applyPreset(p)} className="text-xs px-3 py-1.5 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-colors">{p.label}</button>
-        ))}
-      </div>
-
-      {/* Calculator */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-6">
-          <InputSlider label="Starting Account ($)" value={startBalance} onChange={setStartBalance} min={1000} max={1000000} step={1000} prefix="$" decimals={0} />
-          <InputSlider label="Monthly Premium Collected ($)" value={monthlyPremium} onChange={setMonthlyPremium} min={50} max={20000} step={50} prefix="$" decimals={0} />
-          <InputSlider label="Time Horizon (years)" value={years} onChange={setYears} min={1} max={40} step={1} suffix=" years" decimals={0} />
-          <InputSlider label="Annual Portfolio Return (%)" value={annualReturn} onChange={setAnnualReturn} min={1} max={20} step={0.5} suffix="%" />
-        </div>
-
-        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Portfolio Growth Over Time</p>
-          <p className="text-xs text-gray-400 mb-3"><span className="text-blue-500 font-medium">Blue</span> = Options strategy + reinvestment · <span className="text-gray-400 font-medium">Gray</span> = Passive S&P 500 (10% avg, no premium)</p>
-          <ClientOnly height={240}>
-            <div style={{ height: 240 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={calc.chartData} margin={{ top: 4, right: 8, left: 4, bottom: 20 }}>
-                <defs>
-                  <linearGradient id="optGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.02} />
-                  </linearGradient>
-                  <linearGradient id="passGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#9ca3af" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#9ca3af" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="year" tick={{ fill: "#9ca3af", fontSize: 10 }} stroke="#e5e7eb" tickFormatter={(v) => `Yr ${v}`} label={{ value: "Years", position: "insideBottom", offset: -12, fill: "#9ca3af", fontSize: 10 }} />
-                <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} stroke="#e5e7eb" tickFormatter={(v) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}k`} width={60} />
-                <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 11 }} formatter={(v, name) => [`$${Number(v).toLocaleString()}`, name === "options" ? "Options Strategy" : "Passive S&P"]} labelFormatter={(l) => `Year ${l}`} />
-                <Area type="monotone" dataKey="passive" stroke="#9ca3af" strokeWidth={1.5} fill="url(#passGrad)" dot={false} />
-                <Area type="monotone" dataKey="options" stroke="#3b82f6" strokeWidth={2.5} fill="url(#optGrad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
+      {/* ── TRADINGBLOCK WIDGET ── */}
+      <div style={{
+        width: "100%",
+        fontFamily: "'Poppins', sans-serif",
+        background: NAVY,
+        borderRadius: 16,
+        overflow: "hidden",
+        color: TEXT,
+        boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px ${BORDER}`,
+        marginBottom: 8,
+      }}>
+        <div style={{ padding: "24px 24px 28px" }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${BORDER}` }}>
+            <div style={{ width: 42, height: 42, flexShrink: 0, background: "rgba(29,178,176,0.1)", border: "1px solid rgba(29,178,176,0.28)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg viewBox="0 0 24 24" width={18} height={18} stroke={TEAL} fill="none" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                <path d="M5 3 Q12 10 19 3" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Premium Reinvestment Simulator</div>
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 3, fontWeight: 400 }}>Compound premium vs. passive S&P 500</div>
+            </div>
           </div>
-          </ClientOnly>
+
+          {/* Presets */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+            {PRESETS.map((p) => (
+              <button key={p.label} onClick={() => applyPreset(p)} type="button" style={{ fontSize: 11, padding: "5px 12px", borderRadius: 20, border: `1px solid ${BORDER}`, background: "rgba(29,178,176,0.07)", color: MUTED, cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>{p.label}</button>
+            ))}
+          </div>
+
+          {/* Two-column body */}
+          <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", gap: 20, alignItems: "start" }}>
+            {/* Left: inputs */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <SectionLabel>Portfolio Inputs</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <Field label="Starting Account ($)"><Stepper value={startBalance} onChange={setStartBalance} min={1000} step={5000} /></Field>
+                <Field label="Monthly Premium ($)"><Stepper value={monthlyPremium} onChange={setMonthlyPremium} min={50} step={100} /></Field>
+                <Field label="Time Horizon (years)"><Stepper value={years} onChange={setYears} min={1} step={1} /></Field>
+                <Field label="Annual Return (%)"><Stepper value={annualReturn} onChange={setAnnualReturn} min={1} step={0.5} /></Field>
+              </div>
+            </div>
+
+            {/* Right: results + chart */}
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 14 }}>
+                {[
+                  { label: "Ending Balance", value: fmtK(calc.finalOptions), color: PROFIT, desc: "options + reinvestment" },
+                  { label: "Total Premium", value: `$${fmt(calc.totalPremium)}`, color: TEAL, desc: `collected over ${years} yrs` },
+                  { label: "Compounding Gain", value: `$${fmt(calc.totalGrowth)}`, color: "#a78bfa", desc: "growth on top of premium" },
+                  { label: "vs Passive S&P", value: `+${fmtK(calc.advantage)}`, color: "#eab308", desc: "additional wealth" },
+                ].map((m) => (
+                  <div key={m.label} style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 9, padding: "12px 12px 10px", position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: m.color, opacity: 0.6 }} />
+                    <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.15em" }}>{m.label}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: m.color, letterSpacing: "-0.02em" }}>{m.value}</div>
+                    <div style={{ fontSize: 9, color: MUTED }}>{m.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}><span style={{ width: 22, height: 2, background: TEAL, display: "inline-block" }} /> Options strategy</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}><span style={{ width: 22, height: 2, background: "rgba(180,225,232,0.45)", display: "inline-block" }} /> Passive S&P 500</span>
+              </div>
+              <div style={{ width: "100%", height: 220 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={calc.chartData} margin={{ top: 4, right: 8, left: 4, bottom: 20 }}>
+                    <defs>
+                      <linearGradient id="optGradPR" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={TEAL} stopOpacity={0.25} />
+                        <stop offset="95%" stopColor={TEAL} stopOpacity={0.03} />
+                      </linearGradient>
+                      <linearGradient id="passGradPR" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#b4e1e8" stopOpacity={0.12} />
+                        <stop offset="95%" stopColor="#b4e1e8" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(48,96,146,0.18)" />
+                    <XAxis dataKey="year" tick={{ fill: MUTED, fontSize: 10, fontFamily: "'Poppins', sans-serif" }} tickLine={false} axisLine={false} tickFormatter={(v) => `Yr ${v}`} label={{ value: "Years", position: "insideBottom", offset: -12, fill: MUTED, fontSize: 10 }} />
+                    <YAxis tick={{ fill: MUTED, fontSize: 10, fontFamily: "'Poppins', sans-serif" }} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}k`} width={60} />
+                    <Tooltip contentStyle={{ background: "rgba(5,22,54,0.97)", border: "1px solid rgba(29,178,176,0.4)", borderRadius: 8, fontSize: 11, fontFamily: "'Poppins', sans-serif" }} formatter={(v, name) => [`$${Number(v).toLocaleString()}`, name === "options" ? "Options Strategy" : "Passive S&P"]} labelFormatter={(l) => `Year ${l}`} />
+                    <Area type="monotone" dataKey="passive" stroke="rgba(180,225,232,0.45)" strokeWidth={1.5} fill="url(#passGradPR)" dot={false} />
+                    <Area type="monotone" dataKey="options" stroke={TEAL} strokeWidth={2.5} fill="url(#optGradPR)" dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginTop: 20, padding: "14px 18px", background: "rgba(29,178,176,0.05)", border: "1px solid rgba(29,178,176,0.14)", borderRadius: 8, fontSize: 11, lineHeight: 1.65, color: MUTED }}>
+            <svg viewBox="0 0 24 24" width={15} height={15} style={{ flexShrink: 0, marginTop: 2, stroke: TEAL, fill: "none", opacity: 0.8 }} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>
+              <strong style={{ color: TEAL, fontWeight: 600 }}>For educational purposes only.</strong>{" "}
+              Projections are hypothetical and assume constant returns. Actual results will vary.
+            </span>
+          </div>
         </div>
       </div>
 
-      <InlineCTA heading="Start collecting premium to reinvest" body="The Wheel Strategy is the most systematic way to generate consistent monthly premium from stocks you already want to own." cta="Open Wheel Calculator →" />
+      {/* ── EDUCATIONAL CONTENT ── */}
+      <div className="mt-10 max-w-none">
+        <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">The Power of Reinvesting Options Premium</h2>
+        <p className="text-gray-600 leading-relaxed mb-4">Passive investing in the S&P 500 relies entirely on price appreciation and dividends — averaging around 10% annually. Options income strategies add a third income stream: premium. When that monthly premium is reinvested into the same portfolio (buying more shares, adding to your account, or selling more contracts), compounding accelerates dramatically.</p>
+        <p className="text-gray-600 leading-relaxed mb-6">The key insight is that premium income doesn't require the market to go up. In flat markets — where passive investors make nothing — the wheel trader still collects premium every month. That income, reinvested consistently, creates a significant wealth gap over 20–30 years.</p>
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">The Power of Reinvesting Options Premium</h2>
-      <p className="text-gray-600 leading-relaxed mb-4">Passive investing in the S&P 500 relies entirely on price appreciation and dividends — averaging around 10% annually. Options income strategies add a third income stream: premium. When that monthly premium is reinvested into the same portfolio (buying more shares, adding to your account, or selling more contracts), compounding accelerates dramatically.</p>
-      <p className="text-gray-600 leading-relaxed mb-6">The key insight is that premium income doesn't require the market to go up. In flat markets — where passive investors make nothing — the wheel trader still collects premium every month. That income, reinvested consistently, creates a significant wealth gap over 20–30 years.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
+        <ul className="space-y-3 mb-8">
+          {[
+            ["Premium + compounding is a wealth multiplier", "Monthly premium that gets reinvested compounds just like dividends — the longer the horizon, the bigger the gap vs. passive."],
+            ["Start early, stay consistent", "The difference between 20 years and 30 years of reinvesting premium is enormous. Time is your biggest edge."],
+            ["Market-neutral income matters in flat years", "The S&P returned near zero in 2015, 2018, and 2022. Options sellers still collected premium in all three years."],
+            ["Match premium to account size", "Collecting $800/month on a $10k account means taking enormous risk. Target 1–2% monthly premium on total account value."],
+          ].map(([title, desc]) => (
+            <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
+              <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
+              <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
+            </li>
+          ))}
+        </ul>
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">Key Takeaways</h2>
-      <ul className="space-y-3 mb-8">
-        {[
-          ["Premium + compounding is a wealth multiplier", "Monthly premium that gets reinvested compounds just like dividends — the longer the horizon, the bigger the gap vs. passive."],
-          ["Start early, stay consistent", "The difference between 20 years and 30 years of reinvesting premium is enormous. Time is your biggest edge."],
-          ["Market-neutral income matters in flat years", "The S&P returned near zero in 2015, 2018, and 2022. Options sellers still collected premium in all three years."],
-          ["Match premium to account size", "Collecting $800/month on a $10k account means taking enormous risk. Target 1–2% monthly premium on total account value."],
-        ].map(([title, desc]) => (
-          <li key={title as string} className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
-            <span className="text-blue-500 mt-0.5 font-bold flex-shrink-0">→</span>
-            <span><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></span>
-          </li>
-        ))}
-      </ul>
-
-      <EmailCapture />
-      <RelatedCalculators currentSlug="premium-reinvestment" />
-      <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
-        <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Projections are hypothetical and do not guarantee future results.
+        <EmailCapture />
+        <RelatedCalculators currentSlug="premium-reinvestment" />
+        <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
+          <strong className="text-gray-700">Disclaimer:</strong> Educational purposes only. Projections are hypothetical and do not guarantee future results.
+        </div>
       </div>
+
       <CTABanner />
     </CalcPageLayout>
+  );
+}
+
+function Stepper({ value, onChange, min = 0, step = 1 }: { value: number; onChange: (v: number) => void; min?: number; step?: number }) {
+  const dec = () => onChange(Math.max(min, Math.round((value - step) * 10000) / 10000));
+  const inc = () => onChange(Math.round((value + step) * 10000) / 10000);
+  return (
+    <div style={{ display: "flex", alignItems: "stretch" }}>
+      <button onClick={dec} type="button" style={{ width: 28, flexShrink: 0, background: "rgba(29,178,176,0.08)", border: `1px solid ${BORDER}`, color: TEAL, fontSize: 16, cursor: "pointer", fontFamily: "'Poppins', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "6px 0 0 6px" }}>−</button>
+      <input type="number" value={value} onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.max(min, v)); }} style={{ flex: 1, textAlign: "center", background: "rgba(10,34,72,0.6)", border: `1px solid ${BORDER}`, borderLeft: "none", borderRight: "none", color: TEXT, fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, padding: "5px 7px", outline: "none", width: "100%" }} />
+      <button onClick={inc} type="button" style={{ width: 28, flexShrink: 0, background: "rgba(29,178,176,0.08)", border: `1px solid ${BORDER}`, color: TEAL, fontSize: 16, cursor: "pointer", fontFamily: "'Poppins', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0 6px 6px 0" }}>+</button>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <label style={{ fontSize: 10, fontWeight: 500, color: MUTED, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 11, fontWeight: 700, color: "#e0f0f8", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8, marginTop: 14 }}>
+      {children}
+    </div>
   );
 }
