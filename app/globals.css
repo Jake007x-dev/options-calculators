@@ -61,3 +61,69 @@ input[type="number"]::-webkit-outer-spin-button {
 .prose h2 { color: #111827; }
 .prose h3 { color: #111827; }
 .prose p  { color: #4b5563; }
+
+/* =============================================
+   DARK MODE — global overrides
+   html.dark is set by ThemeProvider on toggle
+   ============================================= */
+
+html.dark body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Text */
+html.dark .text-gray-900 { color: #f1f5f9; }
+html.dark .text-gray-800 { color: #e2e8f0; }
+html.dark .text-gray-700 { color: #cbd5e1; }
+html.dark .text-gray-600 { color: #94a3b8; }
+html.dark .text-gray-500 { color: #64748b; }
+html.dark .text-gray-400 { color: #475569; }
+
+/* Backgrounds */
+html.dark .bg-white        { background-color: #1e293b; }
+html.dark .bg-gray-50      { background-color: #1e293b; }
+html.dark .bg-gray-100     { background-color: #334155; }
+html.dark .bg-blue-50      { background-color: rgba(30, 64, 175, 0.12); }
+html.dark .bg-green-50     { background-color: rgba(22, 101, 52, 0.12); }
+html.dark .bg-red-50       { background-color: rgba(153, 27, 27, 0.12); }
+html.dark .bg-yellow-50    { background-color: rgba(120, 83, 10, 0.12); }
+html.dark .bg-orange-50    { background-color: rgba(154, 52, 18, 0.12); }
+html.dark .bg-purple-50    { background-color: rgba(88, 28, 135, 0.12); }
+
+/* Borders */
+html.dark .border-gray-200  { border-color: #334155; }
+html.dark .border-gray-100  { border-color: #1e293b; }
+html.dark .border-blue-200  { border-color: rgba(37, 99, 235, 0.35); }
+html.dark .border-green-200 { border-color: rgba(22, 163, 74, 0.35); }
+html.dark .border-red-200   { border-color: rgba(220, 38, 38, 0.35); }
+html.dark .border-orange-100{ border-color: rgba(249, 115, 22, 0.25); }
+
+/* Buttons */
+html.dark .bg-gray-100:not([class*="text-"]) { background-color: #334155; }
+html.dark .hover\:bg-gray-200:hover           { background-color: #475569; }
+
+/* Input fields */
+html.dark input[type="text"],
+html.dark input[type="number"] {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+/* Recharts chart backgrounds */
+html.dark .recharts-cartesian-grid-horizontal line,
+html.dark .recharts-cartesian-grid-vertical line {
+  stroke: #334155;
+}
+
+html.dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Scrollbar */
+html.dark ::-webkit-scrollbar-track  { background: #0f172a; }
+html.dark ::-webkit-scrollbar-thumb  { background: #334155; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }

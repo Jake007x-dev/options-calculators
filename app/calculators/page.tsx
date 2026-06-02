@@ -4,9 +4,9 @@ import EmailCapture from "@/components/calculators/EmailCapture";
 import CTABanner from "@/components/calculators/CTABanner";
 
 export const metadata: Metadata = {
-  title: "Free Options Trading Calculators — All 10 Tools",
+  title: "Free Options Trading Calculators — All 16 Tools",
   description:
-    "Professional options trading calculators: Black-Scholes pricing, Implied Volatility, Theta Decay, Monte Carlo simulation, Wheel Strategy income, and more. Free, real-time, no signup required.",
+    "Professional options trading calculators: Black-Scholes pricing, Implied Volatility, Theta Decay, Monte Carlo simulation, Wheel Strategy income, Coast FIRE, Roth IRA, and more. Free, real-time, no signup required.",
 };
 
 const calculators = [
@@ -80,6 +80,48 @@ const calculators = [
     tag: "Earnings / Straddle",
     icon: "📰",
   },
+  {
+    slug: "probability-of-profit",
+    title: "Probability of Profit Calculator",
+    description: "Calculate the exact PoP% for any option strike using Black-Scholes and N(d₂).",
+    tag: "Risk / Probability",
+    icon: "🎯",
+  },
+  {
+    slug: "trade-expectancy",
+    title: "Trade Expectancy Calculator",
+    description: "Find your per-trade edge, monthly income, and whether your system is mathematically profitable.",
+    tag: "Edge / Expectancy",
+    icon: "💡",
+  },
+  {
+    slug: "risk-of-ruin",
+    title: "Risk of Ruin Calculator",
+    description: "Kelly Criterion, optimal position sizing, and probability of blowing up your account.",
+    tag: "Risk / Kelly",
+    icon: "⚠️",
+  },
+  {
+    slug: "premium-reinvestment",
+    title: '"What If I Reinvested My Premium?" Calculator',
+    description: "See how compounding monthly options income over 20–30 years stacks up vs. passive investing.",
+    tag: "Income / Compounding",
+    icon: "💰",
+  },
+  {
+    slug: "roth-ira",
+    title: "Roth IRA + Options Calculator",
+    description: "Project tax-free retirement wealth using options-enhanced returns inside a Roth IRA.",
+    tag: "Retirement / Tax-Free",
+    icon: "🏦",
+  },
+  {
+    slug: "coast-fire",
+    title: "Coast FIRE Calculator",
+    description: "Find your Coast FIRE number and see how options income accelerates your timeline to financial independence.",
+    tag: "FIRE / Retirement",
+    icon: "🏖️",
+  },
 ];
 
 const benefits = [
@@ -113,7 +155,7 @@ export default function CalculatorsLandingPage() {
       {/* Hero */}
       <div className="mb-10">
         <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 text-blue-600 text-xs font-medium mb-4">
-          10 Tools · Free · Real-Time · No Signup
+          16 Tools · Free · Real-Time · No Signup
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-3 leading-tight">
           Free Options Trading Calculators
@@ -137,7 +179,7 @@ export default function CalculatorsLandingPage() {
       </div>
 
       {/* Calculator grid */}
-      <h2 className="text-lg font-bold text-gray-900 mb-4">All Calculators</h2>
+      <h2 className="text-lg font-bold text-gray-900 mb-4">All 16 Calculators</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
         {calculators.map((calc) => (
           <Link

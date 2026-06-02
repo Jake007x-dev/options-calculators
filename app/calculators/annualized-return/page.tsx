@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Cell, Tooltip, CartesianGrid } from "recharts";
 import InputSlider from "@/components/calculators/InputSlider";
+import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
@@ -80,7 +81,8 @@ export default function AnnualizedReturnPage() {
         </div>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Benchmark Comparison</p>
-          <div style={{ height: 160 }}>
+          <ClientOnly height={160}>
+            <div style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={calc.comparisons} layout="vertical" margin={{ top: 4, right: 50, left: 10, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
@@ -95,6 +97,7 @@ export default function AnnualizedReturnPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
+          </ClientOnly>
         </div>
       </div>
 

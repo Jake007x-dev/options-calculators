@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
 import InputSlider from "@/components/calculators/InputSlider";
+import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
@@ -95,7 +96,8 @@ export default function EarningsStraddlePage() {
         </div>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">P&L at Expiration</p>
-          <div style={{ height: 220 }}>
+          <ClientOnly height={220}>
+            <div style={{ height: 220 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={calc.priceRange} margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -110,6 +112,7 @@ export default function EarningsStraddlePage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
+          </ClientOnly>
           <div className="flex gap-4 mt-2 text-xs text-gray-500">
             <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-blue-500 inline-block" /> Long Straddle</span>
             <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-red-500 inline-block border-dashed" /> Short Straddle</span>

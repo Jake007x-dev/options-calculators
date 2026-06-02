@@ -5,19 +5,6 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-const CALCULATORS = [
-  { slug: "implied-volatility", label: "Implied Volatility" },
-  { slug: "black-scholes", label: "Black-Scholes Pricing" },
-  { slug: "wheel-strategy", label: "Wheel Strategy Income" },
-  { slug: "expected-move", label: "Expected Move" },
-  { slug: "monte-carlo", label: "Monte Carlo Simulator" },
-  { slug: "position-size", label: "Position Size & Risk" },
-  { slug: "strategy-selector", label: "Strategy Selector" },
-  { slug: "theta-decay", label: "Theta Decay Visualizer" },
-  { slug: "annualized-return", label: "Annualized Return" },
-  { slug: "earnings-straddle", label: "Earnings Straddle" },
-];
-
 const GREEKS = [
   { label: "Delta", href: "/greeks/delta" },
   { label: "Gamma", href: "/greeks/gamma" },
@@ -35,6 +22,45 @@ const STRATEGIES = [
   { slug: "bull-call-spread", label: "Bull Call Spread" },
   { slug: "protective-put", label: "Protective Put" },
   { slug: "leaps", label: "LEAPS Call" },
+];
+
+const CALC_GROUPS = [
+  {
+    group: "Pricing & Volatility",
+    items: [
+      { slug: "black-scholes", label: "Black-Scholes" },
+      { slug: "implied-volatility", label: "Implied Volatility" },
+      { slug: "expected-move", label: "Expected Move" },
+      { slug: "probability-of-profit", label: "Prob. of Profit" },
+      { slug: "earnings-straddle", label: "Earnings Straddle" },
+      { slug: "theta-decay", label: "Theta Decay" },
+    ],
+  },
+  {
+    group: "Risk & Sizing",
+    items: [
+      { slug: "position-size", label: "Position Size & Risk" },
+      { slug: "monte-carlo", label: "Monte Carlo Sim" },
+      { slug: "risk-of-ruin", label: "Risk of Ruin" },
+      { slug: "trade-expectancy", label: "Trade Expectancy" },
+    ],
+  },
+  {
+    group: "Income & Strategy",
+    items: [
+      { slug: "wheel-strategy", label: "Wheel Strategy" },
+      { slug: "annualized-return", label: "Annualized Return" },
+      { slug: "premium-reinvestment", label: "Premium Reinvestment" },
+      { slug: "strategy-selector", label: "Strategy Selector" },
+    ],
+  },
+  {
+    group: "Personal Finance",
+    items: [
+      { slug: "roth-ira", label: "Roth IRA + Options" },
+      { slug: "coast-fire", label: "Coast FIRE" },
+    ],
+  },
 ];
 
 function SideSection({
@@ -55,13 +81,34 @@ function SideSection({
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors uppercase tracking-wider"
       >
-        <span className="flex items-center gap-2">
-          {icon}
-          {title}
-        </span>
+        <span className="flex items-center gap-2">{icon}{title}</span>
         {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
       </button>
       {open && <div className="pb-2">{children}</div>}
+    </div>
+  );
+}
+
+function CalcSubGroup({
+  group,
+  items,
+  navLink,
+}: {
+  group: string;
+  items: { slug: string; label: string }[];
+  navLink: (href: string, label: string) => React.ReactNode;
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between pl-6 pr-4 py-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+      >
+        {group}
+        {open ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+      </button>
+      {open && <div>{items.map((c) => navLink(`/calculators/${c.slug}`, c.label))}</div>}
     </div>
   );
 }
@@ -87,7 +134,7 @@ export default function CalcSidebar() {
   };
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 self-start sticky top-14 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <aside className="w-56 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-scroll">
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
         <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Options Learning Hub</p>
       </div>
@@ -103,8 +150,10 @@ export default function CalcSidebar() {
         {STRATEGIES.map((s) => navLink(`/strategies/${s.slug}`, s.label))}
       </SideSection>
 
-      <SideSection title="Option Calculators" icon={<span className="text-base">▤</span>} defaultOpen={true}>
-        {CALCULATORS.map((c) => navLink(`/calculators/${c.slug}`, c.label))}
+      <SideSection title="Calculators" icon={<span className="text-base">▤</span>} defaultOpen={true}>
+        {CALC_GROUPS.map((g) => (
+          <CalcSubGroup key={g.group} group={g.group} items={g.items} navLink={navLink} />
+        ))}
       </SideSection>
     </aside>
   );

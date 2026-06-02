@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
 import InputSlider from "@/components/calculators/InputSlider";
+import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
@@ -75,11 +76,14 @@ export default function MonteCarloPage() {
     return runSimulation(winRate, avgWin, avgLoss, startBalance, numTrades, Math.min(numPaths, 500));
   }, [winRate, avgWin, avgLoss, startBalance, numTrades, numPaths]);
 
+  // Cap visible paths at 25 so Recharts doesn't stall
+  const VISIBLE_PATHS = 25;
+
   const chartData = useMemo(() => {
-    const sampledPaths = sim.paths.filter((_, i) => i % Math.ceil(sim.paths.length / 100) === 0);
-    const medianPath = sim.paths
-      .slice()
-      .sort((a, b) => a[a.length - 1] - b[b.length - 1])[Math.floor(sim.paths.length / 2)];
+    const step = Math.max(1, Math.floor(sim.paths.length / VISIBLE_PATHS));
+    const sampledPaths = sim.paths.filter((_, i) => i % step === 0).slice(0, VISIBLE_PATHS);
+    const sorted = sim.paths.slice().sort((a, b) => a[a.length - 1] - b[b.length - 1]);
+    const medianPath = sorted[Math.floor(sorted.length / 2)];
     return Array.from({ length: numTrades + 1 }, (_, i) => {
       const point: Record<string, number> = { trade: i };
       sampledPaths.forEach((path, pi) => { point[`p${pi}`] = path[i] ?? 0; });
@@ -88,7 +92,10 @@ export default function MonteCarloPage() {
     });
   }, [sim, numTrades]);
 
-  const pathKeys = Object.keys(chartData[0] ?? {}).filter((k) => k.startsWith("p"));
+  const pathKeys = useMemo(
+    () => Object.keys(chartData[0] ?? {}).filter((k) => k.startsWith("p")),
+    [chartData]
+  );
 
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
@@ -142,7 +149,8 @@ export default function MonteCarloPage() {
 
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Simulation Paths — <span className="text-blue-600">blue</span> = individual paths, <span className="text-green-600">green</span> = median</p>
-          <div style={{ height: 260 }}>
+          <ClientOnly height={260}>
+            <div style={{ height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 4, right: 8, left: 4, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -152,12 +160,13 @@ export default function MonteCarloPage() {
                 <ReferenceLine y={startBalance} stroke="#9ca3af" strokeDasharray="4 4" label={{ value: "Start", fill: "#9ca3af", fontSize: 9, position: "right" }} />
                 <ReferenceLine y={startBalance * 0.5} stroke="#ef4444" strokeDasharray="4 4" label={{ value: "50% loss", fill: "#ef4444", fontSize: 9, position: "right" }} />
                 {pathKeys.map((key) => (
-                  <Line key={key} type="monotone" dataKey={key} stroke="#3b82f6" strokeWidth={0.5} dot={false} opacity={0.15} legendType="none" name="" />
+                  <Line key={key} type="monotone" dataKey={key} stroke="#3b82f6" strokeWidth={1} dot={false} opacity={0.25} legendType="none" name="" isAnimationActive={false} />
                 ))}
-                <Line type="monotone" dataKey="median" stroke="#22c55e" strokeWidth={2.5} dot={false} name="Median Path" />
+                <Line type="monotone" dataKey="median" stroke="#22c55e" strokeWidth={2.5} dot={false} name="Median Path" isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
+          </ClientOnly>
         </div>
       </div>
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import InputSlider from "@/components/calculators/InputSlider";
+import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
@@ -90,7 +91,8 @@ export default function WheelStrategyPage() {
         </div>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Projected Monthly Income — {ticker}</p>
-          <div style={{ height: 180 }}>
+          <ClientOnly height={180}>
+            <div style={{ height: 180 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={calc.monthlyData} margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -101,6 +103,7 @@ export default function WheelStrategyPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
+          </ClientOnly>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3"><p className="text-gray-500 mb-0.5">Cycles per Year</p><p className="font-bold text-gray-800">{calc.cyclesPerYear.toFixed(1)}</p></div>

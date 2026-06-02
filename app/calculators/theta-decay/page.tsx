@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
 import { blackScholes, thetaDecayCurve } from "@/lib/blackScholes";
 import InputSlider from "@/components/calculators/InputSlider";
+import ClientOnly from "@/components/calculators/ClientOnly";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
@@ -106,7 +107,8 @@ export default function ThetaDecayPage() {
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
             {perspective === "long" ? "Option Value Over Time (Buyer — value eroding)" : "Premium Collected Over Time (Seller — profit growing)"}
           </p>
-          <div style={{ height: 240 }}>
+          <ClientOnly height={240}>
+            <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 4, right: 8, left: 4, bottom: 20 }}>
                 <defs>
@@ -125,6 +127,7 @@ export default function ThetaDecayPage() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          </ClientOnly>
         </div>
         {totalDTE >= 30 && (
           <div className="mt-3 grid grid-cols-3 gap-3 text-xs">

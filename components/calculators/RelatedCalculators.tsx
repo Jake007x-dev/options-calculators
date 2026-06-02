@@ -11,6 +11,12 @@ const ALL = [
   { slug: "theta-decay", label: "Theta Decay", desc: "Daily decay curve from today to expiration.", icon: "⏳" },
   { slug: "annualized-return", label: "Annualized ROC", desc: "Standardize premium to annual return.", icon: "📈" },
   { slug: "earnings-straddle", label: "Earnings Straddle", desc: "Implied vs historical move + P&L chart.", icon: "📰" },
+  { slug: "probability-of-profit", label: "Probability of Profit", desc: "PoP % for any strike using Black-Scholes.", icon: "🎯" },
+  { slug: "trade-expectancy", label: "Trade Expectancy", desc: "Expected value per trade + monthly income.", icon: "💡" },
+  { slug: "risk-of-ruin", label: "Risk of Ruin", desc: "Kelly Criterion + probability of blowing up.", icon: "⚠️" },
+  { slug: "premium-reinvestment", label: "Premium Reinvestment", desc: "Compound options income over 20–30 years.", icon: "💰" },
+  { slug: "roth-ira", label: "Roth IRA + Options", desc: "Tax-free growth with options inside a Roth.", icon: "🏦" },
+  { slug: "coast-fire", label: "Coast FIRE", desc: "Retire faster by collecting options premium.", icon: "🏖️" },
 ];
 
 interface RelatedCalculatorsProps {
@@ -40,7 +46,7 @@ export default function RelatedCalculators({ currentSlug }: RelatedCalculatorsPr
       </div>
       <div className="mt-3 text-right">
         <Link href="/calculators" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-          View all 10 calculators →
+          View all 16 calculators →
         </Link>
       </div>
     </div>
