@@ -1,36 +1,181 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { blackScholes } from "@/lib/blackScholes";
-import InputSlider from "@/components/calculators/InputSlider";
-import InfoTooltip from "@/components/calculators/InfoTooltip";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+  ResponsiveContainer,
+} from "recharts";
+import { blackScholes, normCDF } from "@/lib/blackScholes";
 import CTABanner from "@/components/calculators/CTABanner";
 import CalcPageLayout from "@/components/calculators/CalcPageLayout";
 import InlineCTA from "@/components/calculators/InlineCTA";
 import EmailCapture from "@/components/calculators/EmailCapture";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 
+// ── helpers ────────────────────────────────────────────────────────────────
+
+function clamp(v: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, v));
+}
+
+function bsPrice(S: number, K: number, T: number, r: number, sigma: number, q: number, type: "call" | "put") {
+  if (T <= 0) return type === "call" ? Math.max(0, S - K) : Math.max(0, K - S);
+  const bs = blackScholes({ S, K, T, sigma, r, q });
+  return type === "call" ? bs.callPrice : bs.putPrice;
+}
+
+// ── stepper input ──────────────────────────────────────────────────────────
+
+function Stepper({
+  value,
+  onChange,
+  min = 0,
+  step = 1,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  step?: number;
+}) {
+  const dec = () => onChange(Math.max(min, Math.round((value - step) * 10000) / 10000));
+  const inc = () => onChange(Math.round((value + step) * 10000) / 10000);
+
+  return (
+    <div style={{ display: "flex", alignItems: "stretch" }}>
+      <button onClick={dec} type="button" style={stepBtnStyle("left")}>−</button>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => {
+          const v = parseFloat(e.target.value);
+          if (!isNaN(v)) onChange(Math.max(min, v));
+        }}
+        style={stepInputStyle}
+      />
+      <button onClick={inc} type="button" style={stepBtnStyle("right")}>+</button>
+    </div>
+  );
+}
+
+// ── styles ─────────────────────────────────────────────────────────────────
+
+const NAVY = "#051636";
+const NAVY2 = "#0a2248";
+const TEAL = "#1db2b0";
+const BORDER = "rgba(29,178,176,0.18)";
+const CARD = "rgba(10,34,72,0.8)";
+const TEXT = "#f2f8fd";
+const MUTED = "#9dbdd0";
+const PROFIT = "#1dd1a1";
+const LOSS = "#e05c6a";
+
+const stepBtnBase: React.CSSProperties = {
+  width: 28,
+  flexShrink: 0,
+  background: "rgba(29,178,176,0.08)",
+  border: `1px solid ${BORDER}`,
+  color: TEAL,
+  fontSize: 16,
+  cursor: "pointer",
+  fontFamily: "'Poppins', sans-serif",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+function stepBtnStyle(side: "left" | "right"): React.CSSProperties {
+  return {
+    ...stepBtnBase,
+    borderRadius: side === "left" ? "6px 0 0 6px" : "0 6px 6px 0",
+  };
+}
+
+const stepInputStyle: React.CSSProperties = {
+  flex: 1,
+  textAlign: "center",
+  background: "rgba(10,34,72,0.6)",
+  border: `1px solid ${BORDER}`,
+  borderLeft: "none",
+  borderRight: "none",
+  color: TEXT,
+  fontFamily: "'Poppins', sans-serif",
+  fontSize: 14,
+  fontWeight: 600,
+  padding: "5px 7px",
+  outline: "none",
+  MozAppearance: "textfield" as React.CSSProperties["MozAppearance"],
+  width: "100%",
+};
+
+// ── tooltip ────────────────────────────────────────────────────────────────
+
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) {
+  if (!active || !payload?.length) return null;
+  const today = payload.find((p) => p.name === "today")?.value ?? 0;
+  const expiry = payload.find((p) => p.name === "expiry")?.value ?? 0;
+  const tv = Math.max(0, today - expiry);
+  return (
+    <div style={{ background: "rgba(5,22,54,0.97)", border: "1px solid rgba(29,178,176,0.4)", borderRadius: 8, padding: "10px 14px", fontFamily: "'Poppins', sans-serif" }}>
+      <p style={{ color: "#b4e1e8", fontSize: 11, marginBottom: 4 }}>Stock @ ${label}</p>
+      <p style={{ color: "#e8f4f8", fontSize: 12, fontWeight: 600 }}>
+        Today: ${today.toFixed(2)} <span style={{ color: MUTED, fontWeight: 400 }}>(TV: ${tv.toFixed(2)})</span>
+      </p>
+      <p style={{ color: "#e8f4f8", fontSize: 12, fontWeight: 600 }}>Expiry: ${expiry.toFixed(2)}</p>
+    </div>
+  );
+}
+
+// ── main component ─────────────────────────────────────────────────────────
+
 export default function BlackScholesPage() {
-  const [stockPrice, setStockPrice] = useState(150);
-  const [strikePrice, setStrikePrice] = useState(155);
+  const [optType, setOptType] = useState<"call" | "put">("call");
+  const [stockPrice, setStockPrice] = useState(100);
+  const [strikePrice, setStrikePrice] = useState(100);
   const [dte, setDte] = useState(30);
-  const [iv, setIv] = useState(25);
-  const [riskFreeRate, setRiskFreeRate] = useState(5.25);
+  const [iv, setIv] = useState(20);
+  const [riskFreeRate, setRiskFreeRate] = useState(3.5);
   const [divYield, setDivYield] = useState(0);
 
-  const result = useMemo(() => {
-    return blackScholes({
-      S: stockPrice,
-      K: strikePrice,
-      T: dte / 365,
-      sigma: iv / 100,
-      r: riskFreeRate / 100,
-      q: divYield / 100,
-    });
-  }, [stockPrice, strikePrice, dte, iv, riskFreeRate, divYield]);
+  const T = clamp(dte, 1, 9999) / 365;
+  const sigma = iv / 100;
+  const r = riskFreeRate / 100;
+  const q = divYield / 100;
+  const S = stockPrice;
+  const K = strikePrice;
 
-  const fmt = (n: number, d = 2) =>
-    n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const bs = useMemo(
+    () => blackScholes({ S, K, T, sigma, r, q }),
+    [S, K, T, sigma, r, q]
+  );
+
+  const greeks = useMemo(() => {
+    const delta = optType === "call" ? bs.delta.call : bs.delta.put;
+    const theta = optType === "call" ? bs.theta.call : bs.theta.put;
+    const probITM = optType === "call" ? normCDF(bs.d2) : normCDF(-bs.d2);
+    return { delta, gamma: bs.gamma, theta, vega: bs.vega, probITM };
+  }, [bs, optType]);
+
+  const chartData = useMemo(() => {
+    const lo = Math.max(1, Math.round(K * 0.72));
+    const hi = Math.round(K * 1.28);
+    const data = [];
+    for (let sp = lo; sp <= hi; sp++) {
+      data.push({
+        sp,
+        today: parseFloat(bsPrice(sp, K, T, r, sigma, q, optType).toFixed(3)),
+        expiry: parseFloat((optType === "call" ? Math.max(0, sp - K) : Math.max(0, K - sp)).toFixed(3)),
+      });
+    }
+    return data;
+  }, [K, T, r, sigma, q, optType]);
+
+  const callActive = optType === "call";
 
   return (
     <CalcPageLayout>
@@ -52,83 +197,195 @@ export default function BlackScholesPage() {
         &nbsp;·&nbsp; Updated June 2026
       </p>
 
-      {/* ── CALCULATOR WIDGET ── */}
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm mb-2 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50">
-          <span className="font-semibold text-gray-800 text-sm">Black-Scholes Options Pricing Calculator</span>
-          <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-0.5 rounded-full">ALL GREEKS</span>
-        </div>
+      {/* ── TRADINGBLOCK WIDGET ── */}
+      <div style={{
+        width: "100%",
+        fontFamily: "'Poppins', sans-serif",
+        background: NAVY,
+        borderRadius: 16,
+        overflow: "hidden",
+        color: TEXT,
+        boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px ${BORDER}`,
+        marginBottom: 8,
+      }}>
+        <div style={{ padding: "24px 24px 28px" }}>
 
-        <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Inputs */}
-          <div className="flex flex-col gap-4">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">INPUTS</h2>
-            <InputSlider label="Stock Price ($)" value={stockPrice} onChange={setStockPrice} min={1} max={1000} step={0.5} prefix="$" />
-            <InputSlider label="Strike Price ($)" value={strikePrice} onChange={setStrikePrice} min={1} max={1000} step={0.5} prefix="$" />
-            <InputSlider label="Days to Expiration" value={dte} onChange={setDte} min={1} max={730} step={1} suffix=" days" decimals={0} />
-            <InputSlider label="Implied Volatility (%)" value={iv} onChange={setIv} min={1} max={200} step={0.5} suffix="%" />
-            <InputSlider label="Risk-Free Rate (%)" value={riskFreeRate} onChange={setRiskFreeRate} min={0} max={15} step={0.25} suffix="%" />
-            <InputSlider label="Dividend Yield (%)" value={divYield} onChange={setDivYield} min={0} max={15} step={0.1} suffix="%" />
-          </div>
-
-          {/* Outputs */}
-          <div className="flex flex-col gap-3">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">P/L AT EXPIRATION</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-green-50 border border-green-200 p-3">
-                <p className="text-xs text-gray-500 mb-0.5">Call Price</p>
-                <p className="text-2xl font-bold text-green-600">${fmt(result.callPrice)}</p>
-              </div>
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-                <p className="text-xs text-gray-500 mb-0.5">Put Price</p>
-                <p className="text-2xl font-bold text-red-500">${fmt(result.putPrice)}</p>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${BORDER}` }}>
+            <div style={{ width: 42, height: 42, flexShrink: 0, background: "rgba(29,178,176,0.1)", border: "1px solid rgba(29,178,176,0.28)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg viewBox="0 0 24 24" width={18} height={18} stroke={TEAL} fill="none" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 2 L22 22 M7 2 Q12 12 17 2 M7 22 Q12 12 17 22" strokeWidth={2} />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Option Greeks Calculator</div>
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 3, fontWeight: 400 }}>
+                Long {callActive ? "Call" : "Put"} — delta, gamma, theta &amp; vega
               </div>
             </div>
+          </div>
 
-            {/* Greeks grid */}
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              {[
-                { label: "Delta (Call)", value: fmt(result.delta.call, 4), tip: "Option price move per $1 in stock" },
-                { label: "Delta (Put)", value: fmt(result.delta.put, 4), tip: "Negative — put loses value as stock rises" },
-                { label: "Gamma", value: fmt(result.gamma, 4), tip: "Rate of delta change per $1 stock move" },
-                { label: "Theta / day", value: `$${fmt(result.theta.call, 4)}`, tip: "Daily time decay cost to the call buyer" },
-                { label: "Vega / 1% IV", value: `$${fmt(result.vega, 4)}`, tip: "Value change per 1% implied volatility move" },
-                { label: "Rho (Call)", value: `$${fmt(result.rho.call, 4)}`, tip: "Value change per 1% interest rate move" },
-              ].map((g) => (
-                <div key={g.label} className="bg-gray-50 rounded-lg p-2.5 border border-gray-100">
-                  <p className="text-xs text-gray-500 flex items-center gap-0.5">
-                    {g.label}
-                    <InfoTooltip content={g.tip} />
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">{g.value}</p>
-                </div>
-              ))}
+          {/* Call/Put toggle */}
+          <div style={{ display: "flex", background: "rgba(5,22,54,0.9)", border: `1px solid ${BORDER}`, borderRadius: 12, padding: 5, marginBottom: 18, gap: 4 }}>
+            {(["call", "put"] as const).map((type) => {
+              const isActive = optType === type;
+              const color = type === "call" ? PROFIT : LOSS;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setOptType(type)}
+                  style={{
+                    flex: 1,
+                    padding: "10px 0",
+                    borderRadius: 8,
+                    fontFamily: "'Poppins', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    border: "none",
+                    background: isActive
+                      ? `linear-gradient(135deg, ${color}33, ${color}0f)`
+                      : "transparent",
+                    color: isActive ? color : MUTED,
+                    boxShadow: isActive ? `0 0 0 1px ${color}66, 0 2px 10px ${color}1f` : "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    transition: "all .2s",
+                    letterSpacing: ".01em",
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width={14} height={14} stroke="currentColor" fill="none" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                    {type === "call"
+                      ? <polyline points="2,18 7,18 11,6 21,6" />
+                      : <polyline points="2,6 7,6 11,18 21,18" />}
+                  </svg>
+                  {type === "call" ? "Call Option" : "Put Option"}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Body — two-column */}
+          <div style={{ display: "grid", gridTemplateColumns: "210px 1fr", gap: 20, alignItems: "start" }}>
+
+            {/* Left panel */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <SectionLabel>Option Parameters</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <Field label="Stock Price ($)"><Stepper value={stockPrice} onChange={setStockPrice} min={0.01} step={1} /></Field>
+                <Field label="Strike Price ($)"><Stepper value={strikePrice} onChange={setStrikePrice} min={0.01} step={1} /></Field>
+                <Field label="Days to Expiration"><Stepper value={dte} onChange={setDte} min={1} step={1} /></Field>
+              </div>
+
+              <div style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "12px 0" }} />
+              <SectionLabel>Model Inputs</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <Field label="Implied Vol (%)"><Stepper value={iv} onChange={setIv} min={0.1} step={1} /></Field>
+                <Field label="Interest Rate (%)"><Stepper value={riskFreeRate} onChange={setRiskFreeRate} min={0} step={0.25} /></Field>
+                <Field label="Dividend Yield (%)"><Stepper value={divYield} onChange={setDivYield} min={0} step={0.25} /></Field>
+              </div>
+            </div>
+
+            {/* Right panel */}
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+
+              {/* Greeks grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginBottom: 18 }}>
+                {[
+                  { cls: "delta", color: PROFIT, name: "Delta", value: greeks.delta.toFixed(3), desc: "Price sensitivity per $1 move" },
+                  { cls: "gamma", color: "#b4e1e8", name: "Gamma", value: greeks.gamma.toFixed(3), desc: "Delta change per $1 move" },
+                  { cls: "theta", color: LOSS, name: "Theta", value: greeks.theta.toFixed(3), desc: "Daily time decay ($)" },
+                  { cls: "vega", color: "#f59e0b", name: "Vega", value: greeks.vega.toFixed(3), desc: "Value change per 1% IV move" },
+                  { cls: "prob", color: "#a78bfa", name: "Prob ITM", value: (greeks.probITM * 100).toFixed(1) + "%", desc: "Probability of expiring ITM" },
+                ].map((g) => (
+                  <div key={g.name} style={{
+                    background: CARD,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 9,
+                    padding: "12px 12px 10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 5,
+                    position: "relative",
+                    overflow: "hidden",
+                  }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: g.color, opacity: 0.6 }} />
+                    <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.15em", lineHeight: 1 }}>{g.name}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: g.color, lineHeight: 1, letterSpacing: "-0.02em" }}>{g.value}</div>
+                    <div style={{ fontSize: 9, color: MUTED, lineHeight: 1.4, marginTop: 2 }}>{g.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Chart header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: 500, color: "#b4e1e8" }}>Option Value — Today vs Expiration</span>
+                <span style={{ fontSize: 10, color: TEAL, background: "rgba(29,178,176,0.1)", border: "1px solid rgba(29,178,176,0.25)", borderRadius: 4, padding: "3px 8px", letterSpacing: "0.07em", textTransform: "uppercase" }}>{dte} Days</span>
+              </div>
+
+              {/* Chart legend */}
+              <div style={{ display: "flex", gap: 16, marginBottom: 10, flexWrap: "wrap" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}>
+                  <span style={{ width: 22, height: 2, borderRadius: 1, background: TEAL, display: "inline-block" }} />
+                  Today (with time value)
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: MUTED }}>
+                  <span style={{ width: 22, height: 0, borderTop: "2px dashed rgba(180,225,232,0.5)", display: "inline-block" }} />
+                  At Expiration (intrinsic only)
+                </span>
+              </div>
+
+              {/* Chart */}
+              <div style={{ width: "100%", height: 280 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(48,96,146,0.18)" />
+                    <XAxis
+                      dataKey="sp"
+                      tick={{ fill: MUTED, fontSize: 10, fontFamily: "'Poppins', sans-serif" }}
+                      tickFormatter={(v) => `$${v}`}
+                      tickLine={false}
+                      axisLine={false}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      tick={{ fill: MUTED, fontSize: 10, fontFamily: "'Poppins', sans-serif" }}
+                      tickFormatter={(v) => `$${v.toFixed(2)}`}
+                      tickLine={false}
+                      axisLine={false}
+                      width={52}
+                    />
+                    <Tooltip content={<ChartTooltip />} />
+                    <ReferenceLine
+                      x={K}
+                      stroke="rgba(167,139,250,0.7)"
+                      strokeDasharray="5 4"
+                      strokeWidth={1.5}
+                      label={{ value: "ATM", fill: "#a78bfa", fontSize: 10, fontWeight: 700, fontFamily: "'Poppins', sans-serif" }}
+                    />
+                    <Line dataKey="today" name="today" stroke={TEAL} strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: "#fff", stroke: TEAL, strokeWidth: 2 }} />
+                    <Line dataKey="expiry" name="expiry" stroke="rgba(180,225,232,0.45)" strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 4, fill: "#fff", stroke: "#b4e1e8" }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
             </div>
           </div>
-        </div>
 
-        {/* Summary bar */}
-        <div className="grid grid-cols-3 border-t border-gray-100">
-          {[
-            { label: "MAX PROFIT (CALL)", value: "Unlimited" },
-            { label: "MAX LOSS (CALL)", value: `$${fmt(result.callPrice * 100)}` },
-            { label: "BREAKEVEN", value: `$${fmt(strikePrice + result.callPrice)}` },
-          ].map((s) => (
-            <div key={s.label} className="p-3 text-center border-r border-gray-100 last:border-r-0">
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">{s.label}</p>
-              <p className={`font-bold text-sm ${s.label.includes("PROFIT") ? "text-green-600" : s.label.includes("LOSS") ? "text-red-500" : "text-blue-600"}`}>
-                {s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+          {/* Disclaimer */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginTop: 20, padding: "14px 18px", background: "rgba(29,178,176,0.05)", border: "1px solid rgba(29,178,176,0.14)", borderRadius: 8, fontSize: 11, lineHeight: 1.65, color: MUTED }}>
+            <svg viewBox="0 0 24 24" width={15} height={15} style={{ flexShrink: 0, marginTop: 2, stroke: TEAL, fill: "none", opacity: 0.8 }} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>
+              <strong style={{ color: TEAL, fontWeight: 600 }}>For educational purposes only.</strong>{" "}
+              Greeks are theoretical values calculated using Black-Scholes. Actual Greeks may differ based on market conditions, liquidity, and model assumptions.
+            </span>
+          </div>
 
-        {/* Disclaimer */}
-        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-start gap-2 text-xs text-gray-500">
-          <span className="text-gray-400 flex-shrink-0 mt-0.5">ℹ</span>
-          <span>
-            <strong className="text-gray-600">For educational purposes only.</strong> Results are theoretical estimates based on the Black-Scholes-Merton model and do not account for commissions, early assignment, liquidity, or real-world factors. Options involve substantial risk and are not suitable for all investors.
-          </span>
         </div>
       </div>
 
@@ -223,7 +480,7 @@ export default function BlackScholesPage() {
           In 1997, Scholes and Merton were awarded the Nobel Memorial Prize in Economic Sciences. Black had passed away in 1995 and was ineligible, but the Prize committee acknowledged his foundational contribution. Today, Black-Scholes remains the industry standard for pricing European options, benchmarking implied volatility, and computing Greeks — even though practitioners routinely adjust it for real-world factors like volatility skew, early assignment, and discrete dividends.
         </p>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">Black-Scholes Assumptions & Limitations</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">Black-Scholes Assumptions &amp; Limitations</h2>
         <p className="text-gray-600 mb-4 leading-relaxed">
           The model makes several simplifying assumptions. In practice, traders know these limitations and adjust accordingly:
         </p>
@@ -252,7 +509,6 @@ export default function BlackScholesPage() {
 
         <RelatedCalculators currentSlug="black-scholes" />
 
-        {/* Disclaimer */}
         <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-500 leading-relaxed">
           <strong className="text-gray-700">Disclaimer:</strong> This calculator is provided for educational and informational purposes only. Results are hypothetical and based on the Black-Scholes-Merton theoretical model. They do not represent actual trading outcomes and should not be relied upon as investment advice. Options trading involves substantial risk and is not appropriate for all investors. Past performance is not indicative of future results.
         </div>
@@ -260,5 +516,24 @@ export default function BlackScholesPage() {
 
       <CTABanner />
     </CalcPageLayout>
+  );
+}
+
+// ── small helper components ────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 11, fontWeight: 700, color: "#e0f0f8", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8, marginTop: 14 }}>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <label style={{ fontSize: 10, fontWeight: 500, color: MUTED, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label>
+      {children}
+    </div>
   );
 }
