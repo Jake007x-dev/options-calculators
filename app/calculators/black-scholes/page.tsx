@@ -217,9 +217,9 @@ export default function BlackScholesPage() {
               </svg>
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Option Greeks Calculator</div>
+              <div style={{ fontSize: 22, fontWeight: 600, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>Black-Scholes Pricing Calculator</div>
               <div style={{ fontSize: 12, color: MUTED, marginTop: 3, fontWeight: 400 }}>
-                Long {callActive ? "Call" : "Put"} — delta, gamma, theta &amp; vega
+                {callActive ? "Call" : "Put"} option price &amp; Greeks — Black-Scholes model
               </div>
             </div>
           </div>
@@ -290,6 +290,28 @@ export default function BlackScholesPage() {
 
             {/* Right panel */}
             <div style={{ display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+
+              {/* Option Price — primary output */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14, padding: "14px 18px", background: "rgba(29,178,176,0.07)", border: `1px solid ${BORDER}`, borderRadius: 10 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 4 }}>
+                    Theoretical {callActive ? "Call" : "Put"} Price
+                  </div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: callActive ? PROFIT : LOSS, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                    ${(callActive ? bs.callPrice : bs.putPrice).toFixed(2)}
+                  </div>
+                  <div style={{ fontSize: 10, color: MUTED, marginTop: 4 }}>per share · ×100 = ${((callActive ? bs.callPrice : bs.putPrice) * 100).toFixed(0)} per contract</div>
+                </div>
+                <div style={{ borderLeft: `1px solid ${BORDER}`, paddingLeft: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 4 }}>Breakeven</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#b4e1e8" }}>
+                    ${callActive
+                      ? (strikePrice + bs.callPrice).toFixed(2)
+                      : (strikePrice - bs.putPrice).toFixed(2)}
+                  </div>
+                  <div style={{ fontSize: 10, color: MUTED, marginTop: 4 }}>at expiration</div>
+                </div>
+              </div>
 
               {/* Greeks grid */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginBottom: 18 }}>
